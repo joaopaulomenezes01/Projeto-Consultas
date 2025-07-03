@@ -1,0 +1,57 @@
+
+import customtkinter as ctk
+from tkinter import messagebox
+
+profissionais = {
+   "Psiquiatria": [('"Dr.Rodrigo", ['9:30', '10:30', '11:30', '14:30', '15:30']')]
+   "Ortopedia" :[('"Dra.Marcela", ['13:00','13:45','14:15','15:00','15:45','16:15','17:00','17:45', '18:15']')]
+   'Ginecologia' :[('"Dr.Pedro", ['10:15','11:15','14:15','15:15','16:15','17:15','18:15']')]
+}
+
+dados = {
+    'Nome completo', ''
+    'CPF',''
+    'Data de Nascimento',''
+    'Email', ''
+    'Senha', ''
+    'Especialidade',''
+    'Horário',''
+}
+app = ctk.CTk()
+app.set_appearance_mode('dark')
+def login():
+    Nome_completo= nome_entry.get()
+    CPF= cpf_entry.get()
+    Data_de_Nascimento= ddn_entry.get()
+    Email= email_entry.get()
+    Senha= senha_entry.get()
+def rolagem in frames():
+
+def cadastrando():
+   dados ['Nome completo']= nome_entry.get()
+   dados ['CPF']= cpf_entry.get()
+   dados ['Data de Nascimento']= ddn_entry.get()
+   dados ['Email'] = email_entry.get()
+   dados ['Senha'] = senha_entry.get()
+   if all ([dados['Nome completo'] dados['CPF'] dados['Data de Nascimento'] dados['Email'] dados['Senha']])
+
+
+
+
+app.title('Sistema de Login do Usuário')
+app.geometry ("600x400")
+label_usuario= ctk.CTkLabel(app,text="Usuário:")
+label_usuario.pack(pady=10) 
+campo_usuario = ctk.CTkEntry(app,placeholder_text="digite se usuário")
+campo_usuario.pack(pady=10)
+label_senha= ctk.CTkLabel(app,text="Senha:")
+label_senha.pack(pady=10) 
+campo_senha = ctk.CTkEntry(app,placeholder_text="digite sua senha",show='*')
+campo_senha.pack(pady=10)
+botao_login = ctk.CTkButton(app,text="Efetuar Login",command=validar_login)
+botao_login.pack(pady=10)
+resultado_login = ctk.CTkLabel(app,text='')
+resultado_login.pack(pady=10)
+
+botao_cadastro = ctk.CTkButton(app,text + "Efetuar Cadastro")
+botao_cadastro
