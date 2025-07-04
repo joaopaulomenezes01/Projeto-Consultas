@@ -1,0 +1,223 @@
+import customtkinter as ctk
+import tkinter as tk
+from tkcalendar import Calendar
+
+def lugar():
+    lugares = ['São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Curitiba', 'Porto Alegre']
+    ctk.CTkLabel(app, text="Selecione o local:").pack(pady=5)
+    box_lugar = ctk.CTkOptionMenu(app, values=lugares)
+    box_lugar.pack(pady=5)
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+app = ctk.CTk()
+app.geometry("600x500")
+app.title("Sistema de Login")
+email_cadastrado = ""
+senha_cadastrada = ""
+data_nascimento_var = tk.StringVar()
+
+def abrir_calendario():
+    janela_cal = tk.Toplevel(app)
+    janela_cal.title("Escolha a Data")
+
+    calendario = Calendar(janela_cal, date_pattern="dd/mm/yyyy", locale='pt_BR')
+    calendario.pack(pady=10)
+
+    def selecionar_data():
+        data_nascimento_var.set(calendario.get_date())
+        janela_cal.destroy()
+
+    ctk.CTkButton(janela_cal, text="Selecionar", command=selecionar_data).pack(pady=10)
+
+def cadastrando():
+    for widget in app.winfo_children():
+        widget.destroy()
+
+    Nome_completo = ctk.CTkLabel(app, text='Nome Completo:')
+    Nome_completo.pack(pady=2)
+    digitenome = ctk.CTkEntry(app, placeholder_text='Digite seu Nome Completo')
+    digitenome.pack(pady=2)
+
+    
+    CPF = ctk.CTkLabel(app, text="CPF:")
+    CPF.pack(pady=2)
+    digitecpf = ctk.CTkEntry(app, placeholder_text="Digite seu CPF")
+    digitecpf.pack(pady=2)
+    
+    Data_de_Nascimento = ctk.CTkLabel(app, text="Data de Nascimento:")
+    Data_de_Nascimento.pack(pady=2)
+    entrada_data = ctk.CTkEntry(app, textvariable=data_nascimento_var, state="readonly", placeholder_text="Clique para selecionar")
+    entrada_data.pack(pady=3)
+
+    botao_data = ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario)
+    botao_data.pack(pady=2)
+    
+    email = ctk.CTkLabel(app, text='Email:')
+    email.pack(pady=1)
+    digiteemail = ctk.CTkEntry(app, placeholder_text='Digite seu Email')
+    digiteemail.pack(pady=1)
+
+    senha = ctk.CTkLabel(app, text="Senha:")
+    senha.pack(pady=1)
+    digitesenha = ctk.CTkEntry(app, placeholder_text="Digite sua senha:", show='*')
+    digitesenha.pack(pady=1)
+
+
+   
+
+    def salvar_cadastro():
+        global email_cadastrado, senha_cadastrada
+        email_cadastrado = digiteemail.get()
+        senha_cadastrada = digitesenha.get()
+        login(app)
+
+    botao_salvar = ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro)
+    botao_salvar.pack(pady=10)
+
+    botao_voltar = ctk.CTkButton(app, text='Voltar ao Login', command=lambda: login(app))
+    botao_voltar.pack(pady=20)
+
+def login(root):
+    for widget in app.winfo_children():
+        widget.destroy()
+
+    app.title('Sistema de Login do Usuário')
+    app.geometry("600x400")
+    label_usuario = ctk.CTkLabel(app, text="Usuário:")
+    label_usuario.pack(pady=10)
+    campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu usuário")
+    campo_usuario.pack(pady=10)
+
+    label_senha = ctk.CTkLabel(app, text="Senha:")
+    label_senha.pack(pady=10)
+    campo_senha = ctk.CTkEntry(app, placeholder_text="Digite sua senha", show='*')
+    campo_senha.pack(pady=10)
+
+    resultado_login = ctk.CTkLabel(app, text='')
+    resultado_login.pack(pady=10)
+
+    def verificar_login():
+        usuario = campo_usuario.get()
+        senha = campo_senha.get()
+
+        if usuario == email_cadastrado and senha_cadastrada == senha:
+            resultado_login.configure(text='Login Efetuado com Sucesso!', text_color='green')
+            app.after(1000, escolher_especialidade)
+        elif usuario == email_cadastrado and senha_cadastrada != senha:
+            resultado_login.configure(text='Senha Incorreta! Tente Novamente.', text_color='orange')
+        elif usuario != email_cadastrado and senha_cadastrada == senha:
+            resultado_login.configure(text='Usuário Incorreto! Tente novamente.', text_color='orange')
+        elif not usuario or not senha:
+            resultado_login.configure(text='Preencha todos os campos!', text_color="yellow")
+        else:
+            resultado_login.configure(
+                text='Login Incorreto! Preencha os campos novamente.',
+                text_color="red"
+            )
+
+    botao_login = ctk.CTkButton(app, text="Efetuar Login", command=verificar_login)
+    botao_login.pack(pady=10)
+
+    texto_cadastro = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", text_color="blue", cursor="hand2")
+    texto_cadastro.pack(pady=20)
+    texto_cadastro.bind("<Button-1>", lambda e: cadastrando())
+
+especialidades = { 'Especialidades' : ['Psiquiatria','Ortopedia','Ginecologia','Cardiologia','Oftalmologia']}
+esc_esp= ctk.CTkLabel(app,text='escolha a especialidade')
+esc_esp.pack(pady=5)
+box_especialidade = ctk.CTkOptionMenu(app, values=especialidades['Especialidades'], command=lambda x: atualizar_profissionais())
+box_especialidade.pack(pady=10)
+
+horários= ['13:00','13:45','14:15','15:00','15:45','16:15','17:00','17:45', '18:15','11:15','15:15','16:15','17:15','18:15']
+box_horarios = ctk.CTkOptionMenu (app,values=horários)
+box_horarios.pack(pady=10)
+
+profissionais = {
+    "Cardiologia": [("Dr.Vinícius Gomes", ['8:00', '9:00', '10:00', '11:00', '13:00', '14:00', '15:00']),
+                    ("Dr.Gabriel de Souza", ['13:00', '13:45', '14:15', '15:00', '15:45', '16:15'])],
+
+    "Clínica Geral": [("Dr.Marcos André", ['8:00', '8;45', '9:15', '10:00', '10:45', '11:15'])],
+
+    "Endocrinologia": [("Dr.José Gonçalves", ['9:30', '10:30', '11:30', '14:30', '15:30', '16:30'])],
+
+    "Ginecologia": [("Dr.Pedro Alves", ['10:15', '11:15', '14:15', '15:15', '16:15', '17:15', '18:15']),
+                    ("Drª Ana Maria", ['8:00', '9:00', '10:00', '11:00'])],
+    
+    "Nutrição": [("Dr.João Paulo", ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']),
+                 ("Drª Maria Alice", ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30'])],
+
+    "Odontologia": [("Drª Letícia Dias", ['14:00', '14:45', '15:15']),
+                    ("Dr.Matheus Souza", ['16:00', '16:45', '17:15', '18:00'])],
+    
+    "Oftalmologia": [("Dr.Felipe Cunha", ['13:00', '13:45', '14:15', '15:00', '15:45', '16:15', '17:00'])],
+
+    "Ortopedia": [("Drª Marcela Andrade", ['13:00', '13:45', '14:15', '15:00', '15:45', '16:15', '17:00', '17:45', '18:15']),
+                  ("Dr.Carlos Silva", ['8:00', '8;45', '9:15', '10:00', '10:45', '11:15'])],
+    
+    "Pediatria": [("Drª Alexandra Barros", ['8:00', '8;45', '9:15', '10:00', '10:45', '11:15'])],
+    
+    "Psiquiatria": [("Dr.Rodrigo Pontes", ['9:30', '10:30', '11:30', '14:30', '15:30'])]
+}
+
+def escolher_especialidade():
+    for widget in app.winfo_children():
+        widget.destroy()
+
+    ctk.CTkLabel(app, text="Selecione a Especialidade:").pack(pady=5)
+
+    especialidades = list(profissionais.keys())
+
+    box_especialidade = ctk.CTkOptionMenu(app, values=especialidades)
+    box_especialidade.pack(pady=5)
+    box_especialidade.set(especialidades[0])
+
+    box_profissionais = ctk.CTkOptionMenu(app, values=profissionais[especialidades[0]])
+    box_profissionais.pack(pady=5)
+
+
+def atualizar_profissionais(*args):
+    global calendarioc
+    especialidade = box_especialidade.get()
+    box_profissionais.configure(values=profissionais.get(especialidade, []))
+    box_profissionais.set(profissionais.get[especialidade][0])
+
+    box_especialidade.configure(command=atualizar_profissionais)
+    box_profissionais = ctk.CTkOptionMenu(app, values=[])
+    box_profissionais.pack(pady=10)
+
+    calendarioc = Calendar(app, date_pattern="dd/mm/yyyy", locale='pt_BR')
+    calendarioc.pack(pady=10)
+    
+def lugar():
+    lugaresRMR = {'Região Metropolitana' : ['Recife', 'Paulista', 'Olinda', 'Gravatá', 'Caruaru']}
+    lugaresAgreste = {'Agreste' : ['Garanhuns', 'Caruaru', 'Vitória de Santo Antão', 'Bezerros', 'Gravatá']}
+    lugaresSertão = {'Sertão' : ['Petrolina', 'Floresta', 'Serra Talhada', 'Arcoverde', 'Salgueiro']}
+    lugares = lugaresRMR['Região Metropolitana'] + lugaresAgreste['Agreste'] + lugaresSertão['Sertão'] 
+    ctk.CTkLabel(app, text="Selecione abaixo o local onde deseja realizar o atendimento:").pack(pady=5)
+    box_lugar = ctk.CTkOptionMenu(app, values=lugares)
+    box_lugar.pack(pady=5)
+
+data = ctk.CTkLabel(app, text='Selecione a data da consulta:')
+data.pack(pady=5)
+calendarioc = Calendar(app, date_pattern="dd/mm/yyyy", locale='pt_BR')
+
+def confirmar_agendamento():
+    esp = box_especialidade.get()
+    prof = box_profissionais.get()
+    data = calendarioc.get()
+    horario = box_horarios.get()
+
+    msg =  ctk.CTkLabel(app,text=f'Consulta Marcada com {prof} ({esp})\nEm {data} às {horario}',text_color='green').pack(pady=10)
+    perg =  ctk.CTkLabel(app,text='Deseja confirmar o agendamento?')
+    confirm = ctk.CTkButton(app,text='Confirmar agendamento')
+    cancel = ctk.CTkButton(app,text='Cancelar Agendamento')
+
+
+ctk.CTkButton(app,text='Confirmar Agendamento')
+for widget in app.winfo_children():
+        widget.destroy()
+
+login(app)
+
+
+app.mainloop()
