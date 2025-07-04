@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from customtkinter import CTkOptionMenu
 import tkinter as tk
 from tkcalendar import Calendar
 
@@ -66,6 +67,7 @@ def cadastrando():
         email_cadastrado = digiteemail.get()
         senha_cadastrada = digitesenha.get()
         login(app)
+        
 
     botao_salvar = ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro)
     botao_salvar.pack(pady=10)
@@ -98,7 +100,8 @@ def login(root):
         senha = campo_senha.get()
 
         if usuario == email_cadastrado and senha_cadastrada == senha:
-            resultado_login.configure(text='Login Efetuado com Sucesso!', text_color='green')
+            #resultado_login.configure(text='Login Efetuado com Sucesso!', text_color='green')
+            escolher_especialidades()
         elif usuario == email_cadastrado and senha_cadastrada != senha:
             resultado_login.configure(text='Senha Incorreta! Tente Novamente.', text_color='orange')
         elif usuario != email_cadastrado and senha_cadastrada == senha:
@@ -117,6 +120,81 @@ def login(root):
     texto_cadastro = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", text_color="blue", cursor="hand2")
     texto_cadastro.pack(pady=20)
     texto_cadastro.bind("<Button-1>", lambda e: cadastrando())
+
+#adc as especialidades:
+profissionais = {
+    "Cardiologia": [("Dr.Vinícius Gomes", ['8:00', '9:00', '10:00', '11:00', '13:00', '14:00', '15:00']),
+                    ("Dr.Gabriel de Souza", ['13:00', '13:45', '14:15', '15:00', '15:45', '16:15'])],
+
+    "Clínica Geral": [("Dr.Marcos André", ['8:00', '8;45', '9:15', '10:00', '10:45', '11:15'])],
+
+    "Endocrinologia": [("Dr.José Gonçalves", ['9:30', '10:30', '11:30', '14:30', '15:30', '16:30'])],
+
+    "Ginecologia": [("Dr.Pedro Alves", ['10:15', '11:15', '14:15', '15:15', '16:15', '17:15', '18:15']),
+                    ("Drª Ana Maria", ['8:00', '9:00', '10:00', '11:00'])],
+    
+    "Nutrição": [("Dr.João Paulo", ['13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']),
+                 ("Drª Maria Alice", ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30'])],
+
+    "Odontologia": [("Drª Letícia Dias", ['14:00', '14:45', '15:15']),
+                    ("Dr.Matheus Souza", ['16:00', '16:45', '17:15', '18:00'])],
+    
+    "Oftalmologia": [("Dr.Felipe Cunha", ['13:00', '13:45', '14:15', '15:00', '15:45', '16:15', '17:00'])],
+
+    "Ortopedia": [("Drª Marcela Andrade", ['13:00', '13:45', '14:15', '15:00', '15:45', '16:15', '17:00', '17:45', '18:15']),
+                  ("Dr.Carlos Silva", ['8:00', '8;45', '9:15', '10:00', '10:45', '11:15'])],
+    
+    "Pediatria": [("Drª Alexandra Barros", ['8:00', '8;45', '9:15', '10:00', '10:45', '11:15'])],
+    
+    "Psiquiatria": [("Dr.Rodrigo Pontes", ['9:30', '10:30', '11:30', '14:30', '15:30'])]
+}
+
+def escolher_especialidades():
+    for widget in app.winfo_children():
+        widget.destroy()     
+ 
+    app.title('Especialidades Médicas')
+    app.geometry("600x400")
+    label_especialidade=ctk.CTkLabel(app,text='Escolha a especialidade da consulta:')
+    label_especialidade.pack(pady=20)
+    especialidades=list(profissionais.keys())
+    especialidade_var=ctk.StringVar(value=especialidades[0])
+    menu_especialidades=ctk.CTkOptionMenu(app, values=especialidades, variable=especialidade_var)
+    menu_especialidades.pack(pady=20)
+
+    botao_confirmar_especialidade=ctk.CTkButton(app, text="Confirmar", command=lambda:escolher_profissional(especialidade_var.get()))
+    botao_confirmar_especialidade.pack(pady=20)
+
+def escolher_profissional(especialidade):
+    for widget in app.winfo_children():
+        widget.destroy()   
+
+    app.title('Profissionais Disponíveis')
+    app.geometry("600x400")
+    label_profissional=ctk.CTkLabel(app,text='Escolha o profissional para sua consulta:')
+    label_profissional.pack(pady=30)
+    
+    nomes_profissionais=[]
+    for profissional in profissionais.get(especialidade,[]):
+        nomes_profissionais.append(profissional[0])
+    nomes_profissionais_var = ctk.StringVar(value=nomes_profissionais[0])
+    menu_profissionais=ctk.CTkOptionMenu(app, values=nomes_profissionais, variable=nomes_profissionais_var)
+    menu_profissionais.pack(pady=30)
+
+    botao_confirmar_profissional=ctk.CTkButton(app, text="Confirmar", command=lambda:escolher_horario(especialidade,nomes_profissionais_var.get()))
+    botao_confirmar_profissional.pack(pady=30)
+         
+def escolher_horario(especialidade, nomes_profissionais):
+    for widget in app.winfo_children():
+        widget.destroy()  
+    app.title('Horários Disponíveis')
+    app.geometry("600x400")
+    label_horario=ctk.CTkLabel(app,text='Escolha o horário da sua consulta:')
+    label_horario.pack(pady=30)
+#Falta finalizar !!!
+
+
+
 
 
 login(app)
