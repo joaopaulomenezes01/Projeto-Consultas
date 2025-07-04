@@ -118,6 +118,57 @@ def login(root):
     texto_cadastro.pack(pady=20)
     texto_cadastro.bind("<Button-1>", lambda e: cadastrando())
 
+especialidades = { 'Especialidades' : ['Psiquiatria','Ortopedia','Ginecologia','Cardiologia','Oftalmologia']}
+esc_esp= ctk.CTkLabel(app,text='escolha a especialidade')
+esc_esp.pack(pady=5)
+box_especialidade = ctk.CTkOptionMenu(app, values=especialidades)
+box_especialidade.pack(pady=10)
+
+horários= ['9:30', '10:30', '11:30', '14:30', '15:30'] ['13:00','13:45','14:15','15:00','15:45','16:15','17:00','17:45', '18:15']['10:15','11:15','14:15','15:15','16:15','17:15','18:15']
+box_horarios = ctk.CTkOptionMenu (app,values=horários)
+box_horarios.pack(pady=10)
+
+profissionais = {
+   "Psiquiatria": ["Dr.Rodrigo"] 
+   "Ortopedia" : ["Dra.Marcela"]
+   'Ginecologia' : ["Dr.Pedro"]
+   'Cardiologia' : ['Dra.Júlia']
+    'Oftalmologia' : ['Dr.Luiz' ]   }
+
+esc_profi = ctk.CTkLabel(app, text="Escolha o Profissional:")
+esc_profi.pack(pady=5)
+
+box_profissionais = ctk.CTkOptionMenu(app, values=profissionais)
+box_profissionais.pack(pady=5)
+
+
+def atualizar_profissionais(*args):
+    especialidade = box_especialidade.get()
+    box_profissionais.configure(values=profissionais.get(especialidade, []))
+    box_profissionais.set(profissionais.get[especialidade][0])
+
+    box_especialidade.configure(command=atualizar_profissionais)
+    box_profissionais = ctk.CTkOptionMenu(app, values=[])
+    box_profissionais.pack(pady=10)
+
+    calendarioc = Calendar(app, date_pattern="dd/mm/yyyy", locale='pt_BR')
+    calendarioc.pack(pady=10)
+    
+def confirmar_agendamento():
+    esp = box_especialidade.get()
+    prof = box_profissionais.get()
+    data = calendarioc.get_date()
+    horario = box_horarios.get()
+
+    msg =  ctk.CTkLabel(app,text=f'Consulta Marcada com {prof} ({esp})\nEm {data} às {horario}',text_color='green').pack(pady=10)
+    perg =  ctk.CTkLabel(app,text='Deseja confirmar o agendamento?')
+    confirm = ctk.CTkButton(app,text='Confirmar agendamento')
+    cancel = ctk.CTkButton(app,text='Cancelar Agendamento')
+
+
+ctk.CTkButton(app,text='Confirmar Agendamento')
+for widget in app.winfo_children():
+        widget.destroy()
 
 login(app)
 
