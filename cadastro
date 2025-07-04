@@ -30,15 +30,15 @@ def cadastrando():
         widget.destroy()
 
     Nome_completo = ctk.CTkLabel(app, text='Nome Completo:')
-    Nome_completo.pack(pady=5)
+    Nome_completo.pack(pady=2)
     digitenome = ctk.CTkEntry(app, placeholder_text='Digite seu Nome Completo')
-    digitenome.pack(pady=5)
+    digitenome.pack(pady=2)
 
     
     CPF = ctk.CTkLabel(app, text="CPF:")
-    CPF.pack(pady=5)
+    CPF.pack(pady=2)
     digitecpf = ctk.CTkEntry(app, placeholder_text="Digite seu CPF")
-    digitecpf.pack(pady=5)
+    digitecpf.pack(pady=2)
     
     Data_de_Nascimento = ctk.CTkLabel(app, text="Data de Nascimento:")
     Data_de_Nascimento.pack(pady=2)
@@ -46,17 +46,17 @@ def cadastrando():
     entrada_data.pack(pady=3)
 
     botao_data = ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario)
-    botao_data.pack(pady=3)
+    botao_data.pack(pady=2)
     
     email = ctk.CTkLabel(app, text='Email:')
-    email.pack(pady=3)
+    email.pack(pady=1)
     digiteemail = ctk.CTkEntry(app, placeholder_text='Digite seu Email')
-    digiteemail.pack(pady=3)
+    digiteemail.pack(pady=1)
 
     senha = ctk.CTkLabel(app, text="Senha:")
-    senha.pack(pady=3)
+    senha.pack(pady=1)
     digitesenha = ctk.CTkEntry(app, placeholder_text="Digite sua senha:", show='*')
-    digitesenha.pack(pady=3)
+    digitesenha.pack(pady=1)
 
 
    
@@ -79,7 +79,6 @@ def login(root):
 
     app.title('Sistema de Login do Usuário')
     app.geometry("600x400")
-
     label_usuario = ctk.CTkLabel(app, text="Usuário:")
     label_usuario.pack(pady=10)
     campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu usuário")
@@ -99,6 +98,7 @@ def login(root):
 
         if usuario == email_cadastrado and senha_cadastrada == senha:
             resultado_login.configure(text='Login Efetuado com Sucesso!', text_color='green')
+            app.after(1000, escolher_especialidade)
         elif usuario == email_cadastrado and senha_cadastrada != senha:
             resultado_login.configure(text='Senha Incorreta! Tente Novamente.', text_color='orange')
         elif usuario != email_cadastrado and senha_cadastrada == senha:
@@ -121,28 +121,38 @@ def login(root):
 especialidades = { 'Especialidades' : ['Psiquiatria','Ortopedia','Ginecologia','Cardiologia','Oftalmologia']}
 esc_esp= ctk.CTkLabel(app,text='escolha a especialidade')
 esc_esp.pack(pady=5)
-box_especialidade = ctk.CTkOptionMenu(app, values=especialidades)
+box_especialidade = ctk.CTkOptionMenu(app, values=especialidades['Especialidades'], command=lambda x: atualizar_profissionais())
 box_especialidade.pack(pady=10)
 
-horários= ['9:30', '10:30', '11:30', '14:30', '15:30'] ['13:00','13:45','14:15','15:00','15:45','16:15','17:00','17:45', '18:15']['10:15','11:15','14:15','15:15','16:15','17:15','18:15']
+horários= ['13:00','13:45','14:15','15:00','15:45','16:15','17:00','17:45', '18:15','11:15','15:15','16:15','17:15','18:15']
 box_horarios = ctk.CTkOptionMenu (app,values=horários)
 box_horarios.pack(pady=10)
 
 profissionais = {
-   "Psiquiatria": ["Dr.Rodrigo"] 
-   "Ortopedia" : ["Dra.Marcela"]
-   'Ginecologia' : ["Dr.Pedro"]
-   'Cardiologia' : ['Dra.Júlia']
+   "Psiquiatria": ["Dr.Rodrigo"] ,
+   "Ortopedia" : ["Dra.Marcela"],
+   'Ginecologia' : ["Dr.Pedro"],
+   'Cardiologia' : ['Dra.Júlia'],
     'Oftalmologia' : ['Dr.Luiz' ]   }
 
-esc_profi = ctk.CTkLabel(app, text="Escolha o Profissional:")
-esc_profi.pack(pady=5)
+def escolher_especialidade():
+    for widget in app.winfo_children():
+        widget.destroy()
 
-box_profissionais = ctk.CTkOptionMenu(app, values=profissionais)
-box_profissionais.pack(pady=5)
+    ctk.CTkLabel(app, text="Selecione a Especialidade:").pack(pady=5)
+
+    especialidades = list(profissionais.keys())
+
+    box_especialidade = ctk.CTkOptionMenu(app, values=especialidades)
+    box_especialidade.pack(pady=5)
+    box_especialidade.set(especialidades[0])
+
+    box_profissionais = ctk.CTkOptionMenu(app, values=profissionais[especialidades[0]])
+    box_profissionais.pack(pady=5)
 
 
 def atualizar_profissionais(*args):
+    global calendarioc
     especialidade = box_especialidade.get()
     box_profissionais.configure(values=profissionais.get(especialidade, []))
     box_profissionais.set(profissionais.get[especialidade][0])
@@ -157,7 +167,7 @@ def atualizar_profissionais(*args):
 def confirmar_agendamento():
     esp = box_especialidade.get()
     prof = box_profissionais.get()
-    data = calendarioc.get_date()
+    data = calendarioc.get()
     horario = box_horarios.get()
 
     msg =  ctk.CTkLabel(app,text=f'Consulta Marcada com {prof} ({esp})\nEm {data} às {horario}',text_color='green').pack(pady=10)
