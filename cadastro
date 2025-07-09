@@ -81,15 +81,21 @@ def login():
     resultado.pack(pady=10)
 
     def verificar():
-        if campo_usuario.get() == email_cadastrado and campo_senha.get() == senha_cadastrada:
-            resultado.configure(text="Login bem-sucedido!", text_color="green")
-            app.after(1000, escolher_especialidade)
-        else:
-            resultado.configure(text="Email ou senha incorretos.", text_color="red")
-            return
+        if not campo_usuario.get() or not campo_senha.get():
+          resultado.configure(text="⚠️ Preencha todos os campos!", text_color="yellow")
+          return
 
-    ctk.CTkButton(app, text="Login", command=verificar).pack(pady=10)
-    ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", text_color="blue", cursor="hand2").bind("<Button-1>", lambda e: cadastrando())
+        if campo_usuario.get() == email_cadastrado and campo_senha.get() == senha_cadastrada:
+          resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
+          app.after(1000, escolher_especialidade)
+        else:
+         resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
+    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
+
+    cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", text_color="blue", cursor="hand2")
+    cads.pack(pady=10)
+    cads.bind("<Button-1>", lambda e: cadastrando())
+
 
 
 
@@ -100,22 +106,64 @@ def escolher_especialidade():
     box_esp = ctk.CTkOptionMenu(app, values=list(profissionais.keys()))
     box_esp.pack(pady=5)
     ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(box_esp.get())).pack(pady=10)
-
 def escolher_profissional(especialidade):
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app, text=f"Profissionais disponíveis: {especialidade}:").pack(pady=5)
+
+    data_var = tk.StringVar()
+
+    ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):").pack(pady=5)
+
     nomes = profissionais.get(especialidade, [])
     box_prof = ctk.CTkOptionMenu(app, values=nomes)
     box_prof.pack(pady=5)
+
     ctk.CTkLabel(app, text="Horário disponível:").pack(pady=5)
     box_horario = ctk.CTkOptionMenu(app, values=horarios)
     box_horario.pack(pady=5)
-    calendario = ctk.CTkLabel(app,text='Selecionar data:')
-    calendario.pack(pady=5)
-    calendario = Calendar(app, date_pattern="dd/mm/yyyy", locale='pt_BR')
-    calendario.pack(pady=5)
-    ctk.CTkButton(app, text="Confirmar Agendamento", command=lambda: confirmar_agendamento(especialidade, box_prof.get(), box_horario.get(), calendario.get_date())).pack(pady=10)
+
+    ctk.CTkLabel(app, text='Data da consulta:').pack(pady=5)
+    entrada_data = ctk.CTkEntry(app, textvariable=data_var, state="readonly", placeholder_text="Clique no botão para escolher a data")
+    entrada_data.pack(pady=5)
+
+    def abrir_calendario():
+        janela = tk.Toplevel(app)
+        janela.title("Selecionar Data")
+        calendario = Calendar(janela, date_pattern="dd/mm/yyyy", locale='pt_BR')
+        calendario.pack(pady=10)
+
+        def escolher():
+            data_var.set(calendario.get_date())
+            janela.destroy()
+
+        ctk.CTkButton(janela, text="Confirmar Data", command=escolher).pack(pady=10)
+
+    ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=5)
+
+    resultado_label = ctk.CTkLabel(app, text="")
+    resultado_label.pack(pady=5)
+
+    def confirmar():
+        prof = box_prof.get()
+        horario = box_horario.get()
+        data = data_var.get()
+
+        if not prof or not horario or not data:
+            resultado_label.configure(text="⚠️ Preencha todos os campos!", text_color="orange")
+        else:
+            resultado_label.configure(
+                text=f"✅ Consulta marcada com {prof} ({especialidade})\n🗓️ {data} às {horario}",
+                text_color="green"
+            )
+
+    ctk.CTkButton(app, text="Confirmar Agendamento", command=confirmar).pack(pady=10)
+
+    ctk.CTkButton(app, text="Voltar", command=escolher_especialidade).pack(pady=5)
+
+
+    resultado_label = ctk.CTkLabel(app, text="")
+    resultado_label.pack(pady=5)
+
 
 def confirmar_agendamento(especialidade, profissional, horario, data):
     for widget in app.winfo_children():
