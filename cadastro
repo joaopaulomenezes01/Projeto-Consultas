@@ -1,6 +1,8 @@
 import customtkinter as ctk
 import tkinter as tk
 from tkcalendar import Calendar
+import sqlite3
+
 
 
 ctk.set_appearance_mode("dark")
@@ -9,8 +11,54 @@ app = ctk.CTk()
 app.geometry("600x500")
 app.title("Sistema de Login")
 
-email_cadastrado = ""
-senha_cadastrada = ""
+conector = sqlite3.connect('cadastro.db')
+conector2 = sqlite3.connect('agendamento.db')
+cursor = conector.cursor()
+cursor2 = conector2.cursor()
+
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS usuarios
+(id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    cpf TEXT NOT NULL,
+    data_nascimento TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    senha TEXT NOT NULL) 
+''')
+
+cursor2.execute('''
+CREATE TABLE IF NOT EXISTS agendamentos
+(id integer PRIMARY KEY AUTOINCREMENT,
+    especialidade TEXT NOT NULL,
+    profissional TEXT NOT NULL,
+    horario TEXT NOT NULL,
+    data TEXT NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id))
+''')
+
+conector.commit()
+conector2.commit()
+
+def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
+    try:
+        cursor.execute('''
+        INSERT INTO usuarios (nome, cpf, data_nascimento, email, senha)
+        VALUES (?, ?, ?, ?, ?)
+        ''', (nome, cpf, data_nascimento, email, senha))
+        conector.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+    
+def verificar_usuario(email, senha):
+    cursor.execute('''
+    SELECT * FROM usuarios WHERE email = ? AND senha = ?
+    ''', (email, senha))
+    usuario = cursor.fetchone()
+    return usuario is not None
+    
 data_nascimento_var = tk.StringVar()
 
 
@@ -60,6 +108,18 @@ def cadastrando():
         global email_cadastrado, senha_cadastrada
         email_cadastrado = email.get()
         senha_cadastrada = senha.get()
+
+        if not nome.get() or not cpf.get() or not data_nascimento_var.get() or not email_cadastrado or not senha_cadastrada:
+            ctk.CTkLabel(app, text="⚠️ Preencha todos os campos!", text_color="yellow").pack(pady=10)
+            return
+        sucesso= cadastrar_usuario(nome.get(), cpf.get(), data_nascimento_var.get(), email_cadastrado, senha_cadastrada)
+        if sucesso:
+            ctk.CTkLabel(app,text="✅ Cadastro realizado com sucesso!", text_color="green").pack(pady=10)
+            app.after(1000, login)
+        else:
+            ctk.CTkLabel(app, text="❌ Usuário já cadastrado.", text_color="red").pack(pady=10)
+            app.after(1000, login)
+        
         login()
 
     ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
@@ -171,6 +231,21 @@ def confirmar_agendamento(especialidade, profissional, horario, data):
     ctk.CTkLabel(app, text=f"Consulta marcada com {profissional}\nEspecialidade: {especialidade}\nData: {data}\nHorário: {horario}", text_color="green").pack(pady=10)
     ctk.CTkButton(app, text="Sair", command=app.quit).pack(pady=10)
 
+def historico_agendamentos():
+    for widget in app.winfo_children():
+        widget.destroy()
+    ctk.CTkLabel(app, text="Histórico de Agendamentos").pack(pady=10)
+    
+    cursor2.execute('SELECT * FROM agendamentos')
+    agendamentos = cursor2.fetchall()
+    
+    if not agendamentos:
+        ctk.CTkLabel(app, text="Nenhum agendamento encontrado.").pack(pady=10)
+    else:
+        for agendamento in agendamentos:
+            ctk.CTkLabel(app, text=f"ID: {agendamento[0]}, Especialidade: {agendamento[1]}, Profissional: {agendamento[2]}, Horário: {agendamento[3]}, Data: {agendamento[4]}").pack(pady=5)
+
+    ctk.CTkButton(app, text="Voltar", command=login).pack
 
 login()
 app.mainloop()
