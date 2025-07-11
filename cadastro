@@ -1,6 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
 from tkcalendar import Calendar
+from datetime import datetime, date, timedelta
 import sqlite3
 
 
@@ -54,10 +55,10 @@ def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
     
 def verificar_usuario(email, senha):
     cursor.execute('''
-    SELECT * FROM usuarios WHERE email = ? AND senha = ?
+    SELECT id FROM usuarios WHERE email = ? AND senha = ?
     ''', (email, senha))
     usuario = cursor.fetchone()
-    return usuario is not None
+    return usuario[0] if usuario else None #mudei de select tudo (*) pra só o id pra facilitar já que cada um tem id único
     
 data_nascimento_var = tk.StringVar()
 
@@ -141,11 +142,14 @@ def login():
     resultado.pack(pady=10)
 
     def verificar():
+        email=campo_usuario.get()
+        senha=campo_senha.get()
         if not campo_usuario.get() or not campo_senha.get():
           resultado.configure(text="⚠️ Preencha todos os campos!", text_color="yellow")
           return
-
-        if campo_usuario.get() == email_cadastrado and campo_senha.get() == senha_cadastrada:
+        global id_usuario_logado
+        id_usuario_logado=verificar_usuario(email, senha) #cria variável global, verifica se ele ta no banco de dados dos usuarios, e pega a id
+        if id_usuario_logado:
           resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
           app.after(1000, escolher_especialidade)
         else:
@@ -189,12 +193,22 @@ def escolher_profissional(especialidade):
     def abrir_calendario():
         janela = tk.Toplevel(app)
         janela.title("Selecionar Data")
-        calendario = Calendar(janela, date_pattern="dd/mm/yyyy", locale='pt_BR')
+        data_inicio=date.today()
+        data_final=data_inicio+timedelta(days=30) #adiciona 30 dias à data de início,ent essa é a data limite p selecionar
+        calendario = Calendar(janela, date_pattern="dd/mm/yyyy", locale='pt_BR',mindate=data_inicio,maxdate=data_final)
         calendario.pack(pady=10)
 
+        aviso_dias = ctk.CTkLabel(janela, text="", text_color="red")
+        aviso_dias.pack(pady=10)
+
         def escolher():
-            data_var.set(calendario.get_date())
-            janela.destroy()
+            data_escolhida=calendario.get_date()
+            data_str=datetime.strptime(data_escolhida,"%d/%m/%Y")
+            if data_str.weekday()>=5:
+                aviso_dias.configure(text="❌ Apenas dias úteis são permitidos.") #msg caso nao escolha dia de semana
+            else:
+                data_var.set(calendario.get_date())
+                janela.destroy()
 
         ctk.CTkButton(janela, text="Confirmar Data", command=escolher).pack(pady=10)
 
@@ -211,6 +225,8 @@ def escolher_profissional(especialidade):
         if not prof or not horario or not data:
             resultado_label.configure(text="⚠️ Preencha todos os campos!", text_color="orange")
         else:
+            cursor2.execute("insert into agendamentos (especialidade, profissional,horario,data, usuario_id) values (?,?,?,?,?) ",(especialidade,prof,horario,data,id_usuario_logado)) #guarda em agendamentos
+            conector2.commit()
             resultado_label.configure(
                 text=f"✅ Consulta marcada com {prof} ({especialidade})\n🗓️ {data} às {horario}",
                 text_color="green"
