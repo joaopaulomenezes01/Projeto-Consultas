@@ -30,14 +30,15 @@ CREATE TABLE IF NOT EXISTS usuarios
 
 cursor2.execute('''
 CREATE TABLE IF NOT EXISTS agendamentos
-(id integer PRIMARY KEY AUTOINCREMENT,
+(id integer PRIMARY KEY AUTOINCREMENT, regioes TEXT NOT NULL,
+    cidade TEXT NOT NULL,
     especialidade TEXT NOT NULL,
     profissional TEXT NOT NULL,
     horario TEXT NOT NULL,
     data TEXT NOT NULL,
     usuario_id INTEGER NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id))
-''')
+''') #adc regioes e cidade na tabela de agendamentos
 
 conector.commit()
 conector2.commit()
@@ -62,17 +63,36 @@ def verificar_usuario(email, senha):
     
 data_nascimento_var = tk.StringVar()
 
-
+#adc mais profissionais
 profissionais = {
-    "Psiquiatria": ["Dr. Rodrigo Pontes"],
-    "Ortopedia": ["Dr. Carlos Silva", "Drª Marcela Andrade"],
-    "Ginecologia": ["Dr. Pedro Alves", "Drª Ana Maria"],
-    "Cardiologia": ["Dr. Vinícius Gomes", "Dr. Gabriel de Souza"],
-    "Oftalmologia": ["Dr. Felipe Cunha"]
+    "Cardiologia": ["Dr. Vinícius Gomes","Dr. Gabriel de Souza","Drª Bárbara Vitória","Dr. Bruno Carvalho","Dr. Manoella Silva","Drª Dandara Cruz", "Dr. Celso da Luz"],
+    
+    "Clínica Geral": ["Dr. Marcos André","Dr. Wallace Bernardo","Drª Beatriz Dias","Drª Brenda Maria","Dr. Breno Campos","Dr. Bernardo Maia","Drª Luíza Rebecca","Drª Laíza Santos" ],
+
+    "Endocrinologia": ["Dr. José Gonçalves","Drª Mirella Alves","Dr. Thiago Ribeiro","Dr. João Victor","Dr. Arthur Rebouças","Dr. Cleiton Pereira","Drª Danielle Larissa","Drª Diana Cavallazi"],
+
+     "Ginecologia": ["Dr. Pedro Alves","Drª Ana Maria","Drª Bruna Rodrigues","Drª Luana Maria","Drª Luna Ribeiro","Dr. Alessandro Victor","Dr. Miguel da Costa"],
+
+     "Nutrição": ["Dr. João Paulo","Drª Maria Alice","Drª Kayllane Letícia","Drª Victória Almeida","Dr. Alex de Teixeira","Dr. Kléber Eduardo","Dr. Kleyton Paulo"],
+
+     "Odontologia": ["Drª Letícia Dias","Dr. Matheus Souza","Dr. Rhuan Barros","Drª Gleice Batista","Drª Jennifer Barbosa","Dr. Pablo Arruda","Drª Esther Silva","Dr. Samuel Queiroz"],
+    
+    "Oftalmologia": ["Dr. Felipe Cunha","Dr. Leandro Moura","Drª Laura Campos","Drª Victória Borges","Drª Selma Morais","Drª Maura Fontes","Dr. Jonas do Nascimento"],
+    
+    "Ortopedia": ["Drª Marcela Andrade","Drª Carolina Oliveira","Drª Suellen Ferreira","Dr. Carlos Silva","Dr. Rennan Nunes","Dr. Christiano Fernando","Dr. Luciano Neves","Drª Fernanda Ramos"],
+
+     "Pediatria": ["Drª Alexandra Barros","Drª Camila Ramos","Dr. Diego dos Reis","Dr. Jorge Montes","Drª Lucinda da Rocha","Drª Priscilla Fontes","Dr. Ronaldo Santana"],
+
+     "Psiquiatria": ["Dr. Rodrigo Pontes","Drª Juliana Cunha","Drª Eliana Teixeira","Dr. Davi Soares","Dr. Enzo Vieira","Drª Valentina Eduarda"]
 }
+
 
 horarios = ['08:00', '08:45', '09:30', '10:15', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00']
 
+#adc regioes e cidades
+regioes = {"Região Metropolitana": ["Recife","Paulista","Olinda"],
+           "Agreste": ["Garanhuns","Caruaru","Vitória de Santo Antão","Bezerros","Gravatá"],
+           "Sertão": ["Petrolina","Floresta","Serra Talhada","Arcoverde","Salgueiro"]}
 
 
 def abrir_calendario():
@@ -151,7 +171,7 @@ def login():
         id_usuario_logado=verificar_usuario(email, senha) #cria variável global, verifica se ele ta no banco de dados dos usuarios, e pega a id
         if id_usuario_logado:
           resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
-          app.after(1000, escolher_especialidade)
+          app.after(1000,lambda: inicio()) #adc tela de inicio
         else:
          resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
     ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
@@ -160,17 +180,40 @@ def login():
     cads.pack(pady=10)
     cads.bind("<Button-1>", lambda e: cadastrando())
 
+def inicio():
+    for widget in app.winfo_children():
+        widget.destroy()
+    ctk.CTkLabel(app,text="Bem-vindo(a)! O que deseja fazer?").pack(pady=5)
+    ctk.CTkButton(app, text="Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
+    ctk.CTkButton(app,text="Iniciar sessão de agendamento de consultas", command=lambda:escolher_regiao()).pack(pady=10)
 
 
+def escolher_regiao(): #adc def p regiao
+    for widget in app.winfo_children():
+        widget.destroy()
+    ctk.CTkLabel(app,text="Escolha a região desejada:").pack(pady=5)
+    box_regiao=ctk.CTkOptionMenu(app,values=list(regioes.keys()))
+    box_regiao.pack(pady=5)
+    ctk.CTkButton(app,text="Próximo", command=lambda:escolher_cidade(box_regiao.get())).pack(pady=10)
 
-def escolher_especialidade():
+def escolher_cidade(regiao): #adc def p cidade
+    for widget in app.winfo_children():
+        widget.destroy()
+    ctk.CTkLabel(app, text= f"Escolha a cidade em {regiao}:").pack(pady=5)
+    cidades=regioes.get(regiao,[])
+    box_cidade=ctk.CTkOptionMenu(app,values=cidades)
+    box_cidade.pack(pady=5)
+    ctk.CTkButton(app,text="Próximo", command=lambda: escolher_especialidade(regiao,box_cidade.get())).pack(pady=10)
+
+
+def escolher_especialidade(regiao,cidade):
     for widget in app.winfo_children():
         widget.destroy()
     ctk.CTkLabel(app, text="Escolha a especialidade:").pack(pady=5)
     box_esp = ctk.CTkOptionMenu(app, values=list(profissionais.keys()))
     box_esp.pack(pady=5)
-    ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(box_esp.get())).pack(pady=10)
-def escolher_profissional(especialidade):
+    ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(regiao,cidade,box_esp.get())).pack(pady=10)
+def escolher_profissional(regiao,cidade,especialidade):
     for widget in app.winfo_children():
         widget.destroy()
 
@@ -205,7 +248,7 @@ def escolher_profissional(especialidade):
             data_escolhida=calendario.get_date()
             data_str=datetime.strptime(data_escolhida,"%d/%m/%Y")
             if data_str.weekday()>=5:
-                aviso_dias.configure(text="❌ Apenas dias úteis são permitidos.") #msg caso nao escolha dia de semana
+                aviso_dias.configure(text="❌ Os atendimentos só são realizados em dias úteis. Escolha outra data") #msg caso nao escolha dia de semana
             else:
                 data_var.set(calendario.get_date())
                 janela.destroy()
@@ -225,34 +268,36 @@ def escolher_profissional(especialidade):
         if not prof or not horario or not data:
             resultado_label.configure(text="⚠️ Preencha todos os campos!", text_color="orange")
         else:
-            cursor2.execute("insert into agendamentos (especialidade, profissional,horario,data, usuario_id) values (?,?,?,?,?) ",(especialidade,prof,horario,data,id_usuario_logado)) #guarda em agendamentos
-            conector2.commit()
             resultado_label.configure(
                 text=f"✅ Consulta marcada com {prof} ({especialidade})\n🗓️ {data} às {horario}",
                 text_color="green"
             )
+            app.after(1000, lambda:confirmar_agendamento(regiao,cidade,especialidade,prof,horario,data))
 
-    ctk.CTkButton(app, text="Confirmar Agendamento", command=confirmar).pack(pady=10)
+    ctk.CTkButton(app, text="Confirmar Agendamento", command=lambda: confirmar()).pack(pady=10)
 
-    ctk.CTkButton(app, text="Voltar", command=escolher_especialidade).pack(pady=5)
+    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_especialidade(regiao,cidade)).pack(pady=5)
 
 
     resultado_label = ctk.CTkLabel(app, text="")
     resultado_label.pack(pady=5)
 
-
-def confirmar_agendamento(especialidade, profissional, horario, data):
+#adc regiao e cidade aqui
+def confirmar_agendamento(regiao,cidade,especialidade, profissional, horario, data):
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app, text=f"Consulta marcada com {profissional}\nEspecialidade: {especialidade}\nData: {data}\nHorário: {horario}", text_color="green").pack(pady=10)
+    cursor2.execute("insert into agendamentos (especialidade, profissional,horario,data, usuario_id) values (?,?,?,?,?) ",(especialidade,profissional,horario,data,id_usuario_logado)) #guarda em agendamentos
+    conector2.commit()
+    ctk.CTkLabel(app, text=f"Consulta marcada em {regiao}, na cidade de {cidade}, com {profissional}\nEspecialidade: {especialidade}\nData: {data}\nHorário: {horario}", text_color="green").pack(pady=10)
     ctk.CTkButton(app, text="Sair", command=app.quit).pack(pady=10)
+    ctk.CTkButton(app, text="Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
 
 def historico_agendamentos():
     for widget in app.winfo_children():
         widget.destroy()
     ctk.CTkLabel(app, text="Histórico de Agendamentos").pack(pady=10)
     
-    cursor2.execute('SELECT * FROM agendamentos')
+    cursor2.execute('SELECT * FROM agendamentos WHERE usuario_id=?', [id_usuario_logado])
     agendamentos = cursor2.fetchall()
     
     if not agendamentos:
@@ -261,7 +306,9 @@ def historico_agendamentos():
         for agendamento in agendamentos:
             ctk.CTkLabel(app, text=f"ID: {agendamento[0]}, Especialidade: {agendamento[1]}, Profissional: {agendamento[2]}, Horário: {agendamento[3]}, Data: {agendamento[4]}").pack(pady=5)
 
-    ctk.CTkButton(app, text="Voltar", command=login).pack
+    ctk.CTkButton(app, text="Voltar", command=login).pack(pady=10)
 
 login()
 app.mainloop()
+
+#O QUE FALTA: 1- ORGANIZAR MÉDICOS POR CIDADES/ 2- BUG DO HISTORICO??/ 3- PARTE VISUAL/ 4- CONDICIONAIS DO E-MAIL E CPF ...
