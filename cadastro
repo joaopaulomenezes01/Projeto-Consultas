@@ -3,14 +3,25 @@ import tkinter as tk
 from tkcalendar import Calendar
 from datetime import datetime, date, timedelta
 import sqlite3
+from PIL import Image, ImageTk
 
 
 
-ctk.set_appearance_mode("dark")
+
+ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
-app.geometry("600x500")
+app.geometry("800x500")
+frame_esquerda =ctk.CTkFrame(app,fg_color='white',width=400)
+frame_esquerda.pack(side='left',fill='both')
+
+imagem = Image.open('testa.jpeg')
+imagem = imagem.resize((350,350))
+img_tk = ImageTk.PhotoImage(imagem)
 app.title("Sistema de Login")
+imagem_label = ctk.CTkLabel(frame_esquerda, image =img_tk,text='')
+imagem_label.image = img_tk
+imagem_label.pack(expand=True)
 
 conector = sqlite3.connect('cadastro.db')
 conector2 = sqlite3.connect('agendamento.db')
