@@ -5,23 +5,43 @@ from datetime import datetime, date, timedelta
 import sqlite3
 from PIL import Image, ImageTk
 
-
-
-
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.geometry("800x500")
-frame_esquerda =ctk.CTkFrame(app,fg_color='white',width=400)
-frame_esquerda.pack(side='left',fill='both')
 
-imagem = Image.open('testa.jpeg')
-imagem = imagem.resize((350,350))
-img_tk = ImageTk.PhotoImage(imagem)
-app.title("Sistema de Login")
-imagem_label = ctk.CTkLabel(frame_esquerda, image =img_tk,text='')
-imagem_label.image = img_tk
-imagem_label.pack(expand=True)
+frame_inicial = ctk.CTkFrame(app)
+frame_login = ctk.CTkFrame(app)
+
+frame_inicial.pack(fill="both", expand=True)
+
+def mostrar_login():
+    frame_inicial.pack_forget()
+    frame_login.pack(fill="both", expand=True)
+
+frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="white")
+frame_esquerda.pack(side="left", fill="both")
+
+imagem = Image.open("testa.jpeg")
+ctk_img = ctk.CTkImage(light_image=imagem, size=(300, 300))
+label_img = ctk.CTkLabel(frame_esquerda, image=ctk_img, text="")
+label_img.pack(expand=True)
+
+frame_direita = ctk.CTkFrame(frame_inicial, fg_color="#f8f8f8")
+frame_direita.pack(side="left", fill="both", expand=True)
+
+ctk.CTkLabel(frame_direita, text="Sistema de Agendamento de Consultas",
+font=("Comic Sans MS", 20, "bold")).pack(pady=(50, 10))
+
+ctk.CTkLabel(frame_direita, text="Desenvolvido por: Júlia Gabrielle e João Paulo",
+font=("Comic Sans MS", 14)).pack(pady=5)
+
+ctk.CTkLabel(frame_direita, text="Versão 1.0", font=("Comic Sans MS", 14)).pack(pady=5)
+ctk.CTkLabel(frame_direita, text="© 2025 Todos os direitos reservados", font=("Comic Sans MS", 12)).pack(pady=10)
+
+botao_iniciar = ctk.CTkButton(frame_direita, text="Iniciar", width=200, command=mostrar_login)
+botao_iniciar.pack(pady=20)
+
 
 conector = sqlite3.connect('cadastro.db')
 conector2 = sqlite3.connect('agendamento.db')
@@ -162,11 +182,16 @@ def cadastrando():
 def login():
     for widget in app.winfo_children():
         widget.destroy()
-   
-    ctk.CTkLabel(app, text="Usuário:").pack(pady=10)
+    
+    img1 = Image.open("usuario.png")
+    ctk_img1 = ctk.CTkImage(light_image=img1, size=(30, 30))
+    img2 = Image.open("senha.png")
+    ctk_img2 = ctk.CTkImage(light_image=img2, size=(30, 30))
+
+    ctk.CTkLabel(master=app, text="Usuário", Image= ctk_img1, compound='right').pack(pady=10)
     campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
     campo_usuario.pack(pady=10)
-    ctk.CTkLabel(app, text="Senha:").pack(pady=10)
+    ctk.CTkLabel(master=app, text="Senha", image=ctk_img2, compound='right').pack(pady=10)
     campo_senha = ctk.CTkEntry (app, placeholder_text="Digite sua senha", show='*')
     campo_senha.pack(pady=10)
     resultado = ctk.CTkLabel(app, text='')
