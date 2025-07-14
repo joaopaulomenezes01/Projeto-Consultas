@@ -17,7 +17,7 @@ frame_esquerda.pack(side='left',fill='both')
 
 imagem = Image.open('testa.jpeg')
 imagem = imagem.resize((350,350))
-img_tk = ImageTk.PhotoImage(imagem)
+img_tk = ctk.CTkImage(imagem)
 app.title("Sistema de Login")
 imagem_label = ctk.CTkLabel(frame_esquerda, image =img_tk,text='')
 imagem_label.image = img_tk
@@ -163,7 +163,7 @@ def login():
     for widget in app.winfo_children():
         widget.destroy()
    
-    ctk.CTkLabel(app, text="Usuário:").pack(pady=10)
+    ctk.CTkLabel(app, text="Usuário :").pack(pady=10)
     campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
     campo_usuario.pack(pady=10)
     ctk.CTkLabel(app, text="Senha:").pack(pady=10)
