@@ -1,3 +1,4 @@
+from struct import pack
 import customtkinter as ctk
 import tkinter as tk
 from tkcalendar import Calendar
@@ -5,23 +6,43 @@ from datetime import datetime, date, timedelta
 import sqlite3
 from PIL import Image, ImageTk
 
-
-
-
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
-app.geometry("800x500")
-frame_esquerda =ctk.CTkFrame(app,fg_color='white',width=400)
+app.geometry("900x500")
+app.title("Sistema de Login")
+frame_esquerda =ctk.CTkFrame(app,fg_color='#F9F9F9',width=400)
 frame_esquerda.pack(side='left',fill='both')
 
-imagem = Image.open('testa.jpeg')
+imagem = Image.open('images2.jpeg')
 imagem = imagem.resize((350,350))
-img_tk = ImageTk.PhotoImage(imagem)
-app.title("Sistema de Login")
+img_tk = ctk.CTkImage(light_image=imagem, size =(350, 350))
+
+
 imagem_label = ctk.CTkLabel(frame_esquerda, image =img_tk,text='')
 imagem_label.image = img_tk
 imagem_label.pack(expand=True)
+
+
+frame_direita = ctk.CTkFrame(app,fg_color='#F9F9F9',width=400)
+frame_direita.pack(side='left',fill='both')
+titulo = ctk.CTkLabel(frame_direita, text="Sistema de Agendamento de Consultas", font=("Comic Sans MS", 22))
+titulo.pack(pady=40)
+autores = ctk.CTkLabel(frame_direita, text="Desenvolvido por: Júlia Gabrielle e João Paulo", font=("Comic Sans MS", 14))
+autores.pack(pady=10)
+versão = ctk.CTkLabel(frame_direita, text="Versão 1.0", font=("Comic Sans MS", 14))
+versão.pack(pady=5)
+direitos = ctk.CTkLabel(frame_direita, text="© 2025 Todos os direitos reservados", font=("Comic Sans MS", 14))
+direitos.pack(pady=5)
+
+
+def iniciar_login():
+    nova_janela = ctk.CTkToplevel(app)
+    nova_janela.geometry('500x400')
+    nova_janela.title('Tela de Login')
+    ctk.CTkLabel(nova_janela, text="Bem-vindo ao Sistema de Agendamento de Consultas", font=("Arial", 20)).pack(pady=20)
+    botão = ctk.CTkButton(nova_janela, text="Iniciar Sessão", command=login,width=200, height=50)
+    botão.pack(pady=20)
 
 conector = sqlite3.connect('cadastro.db')
 conector2 = sqlite3.connect('agendamento.db')
@@ -156,17 +177,26 @@ def cadastrando():
 
     ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
     ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
-
-
+def iniciar_login(login):
+    for widget in app.winfo_children():
+        widget.destroy()
+    ctk.CTkLabel(app, text="Sistema de Agendamento de Consultas", font=("Arial", 20)).pack(pady=20)
+    ctk.CTkButton(app, text="Iniciar Sessão", command=login).pack(pady=10)
 
 def login():
     for widget in app.winfo_children():
         widget.destroy()
    
-    ctk.CTkLabel(app, text="Usuário:").pack(pady=10)
+    frame_esquerda =ctk.CTkFrame(app,fg_color='#F9F9F9',width=400)
+    frame_esquerda.pack(side='left',fill='both')
+
+    imagem = Image.open('images2.jpeg')
+    imagem = imagem.resize((330,200))
+    img_tk = ImageTk.PhotoImage(imagem)
+    ctk.CTkLabel(app, text=" Usuário 👤:").pack(pady=10)
     campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
     campo_usuario.pack(pady=10)
-    ctk.CTkLabel(app, text="Senha:").pack(pady=10)
+    ctk.CTkLabel(app, text=" Senha 🔐:").pack(pady=10)
     campo_senha = ctk.CTkEntry (app, placeholder_text="Digite sua senha", show='*')
     campo_senha.pack(pady=10)
     resultado = ctk.CTkLabel(app, text='')
@@ -187,7 +217,7 @@ def login():
          resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
     ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
 
-    cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", text_color="blue", cursor="hand2")
+    cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui 👈", text_color="yellow", cursor="hand2")
     cads.pack(pady=10)
     cads.bind("<Button-1>", lambda e: cadastrando())
 
@@ -195,14 +225,14 @@ def inicio():
     for widget in app.winfo_children():
         widget.destroy()
     ctk.CTkLabel(app,text="Bem-vindo(a)! O que deseja fazer?").pack(pady=5)
-    ctk.CTkButton(app, text="Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
-    ctk.CTkButton(app,text="Iniciar sessão de agendamento de consultas", command=lambda:escolher_regiao()).pack(pady=10)
+    ctk.CTkButton(app, text="👁️ Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
+    ctk.CTkButton(app,text="📅 Iniciar sessão de agendamento de consultas", command=lambda:escolher_regiao()).pack(pady=10)
 
 
 def escolher_regiao(): #adc def p regiao
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app,text="Escolha a região desejada:").pack(pady=5)
+    ctk.CTkLabel(app,text=" Escolha a região desejada 🗺️:").pack(pady=5)
     box_regiao=ctk.CTkOptionMenu(app,values=list(regioes.keys()))
     box_regiao.pack(pady=5)
     ctk.CTkButton(app,text="Próximo", command=lambda:escolher_cidade(box_regiao.get())).pack(pady=10)
@@ -220,7 +250,7 @@ def escolher_cidade(regiao): #adc def p cidade
 def escolher_especialidade(regiao,cidade):
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app, text="Escolha a especialidade:").pack(pady=5)
+    ctk.CTkLabel(app, text="🩺 Escolha a especialidade:").pack(pady=5)
     box_esp = ctk.CTkOptionMenu(app, values=list(profissionais.keys()))
     box_esp.pack(pady=5)
     ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(regiao,cidade,box_esp.get())).pack(pady=10)
@@ -230,17 +260,13 @@ def escolher_profissional(regiao,cidade,especialidade):
 
     data_var = tk.StringVar()
 
-    ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):").pack(pady=5)
+    ctk.CTkLabel(app, text=f"👨‍⚕️ Profissionais disponíveis ({especialidade}):").pack(pady=5)
 
     nomes = profissionais.get(especialidade, [])
     box_prof = ctk.CTkOptionMenu(app, values=nomes)
     box_prof.pack(pady=5)
 
-    ctk.CTkLabel(app, text="Horário disponível:").pack(pady=5)
-    box_horario = ctk.CTkOptionMenu(app, values=horarios)
-    box_horario.pack(pady=5)
-
-    ctk.CTkLabel(app, text='Data da consulta:').pack(pady=5)
+    ctk.CTkLabel(app, text='📅 Data da consulta:').pack(pady=5)
     entrada_data = ctk.CTkEntry(app, textvariable=data_var, state="readonly", placeholder_text="Clique no botão para escolher a data")
     entrada_data.pack(pady=5)
 
@@ -266,7 +292,13 @@ def escolher_profissional(regiao,cidade,especialidade):
 
         ctk.CTkButton(janela, text="Confirmar Data", command=escolher).pack(pady=10)
 
-    ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=5)
+    ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=5)    
+
+    ctk.CTkLabel(app, text="🕒 Horário disponível:").pack(pady=5)
+    box_horario = ctk.CTkOptionMenu(app, values=horarios)
+    box_horario.pack(pady=5)
+
+    
 
     resultado_label = ctk.CTkLabel(app, text="")
     resultado_label.pack(pady=5)
@@ -306,8 +338,8 @@ def confirmar_agendamento(regiao,cidade,especialidade, profissional, horario, da
 def historico_agendamentos():
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app, text="Histórico de Agendamentos").pack(pady=10)
-    
+    ctk.CTkLabel(app, text="📜 Histórico de Agendamentos").pack(pady=10)
+
     cursor2.execute('SELECT * FROM agendamentos WHERE usuario_id=?', [id_usuario_logado])
     agendamentos = cursor2.fetchall()
     
