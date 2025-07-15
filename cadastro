@@ -17,6 +17,7 @@ frame_login = ctk.CTkFrame(app)
 frame_inicial.pack(fill="both", expand=True)
 
 def mostrar_login():
+    cursor2.execute("insert into agendamentos (especialidade, profissional,horario,data, usuario_id) values (?,?,?,?,?) ", ...)
     frame_inicial.pack_forget()
     frame_login.pack(fill="both", expand=True)
 
@@ -28,7 +29,7 @@ ctk_img = ctk.CTkImage(light_image=imagem, size=(300, 300))
 label_img = ctk.CTkLabel(frame_esquerda, image=ctk_img, text="")
 label_img.pack(expand=True)
 
-frame_direita = ctk.CTkFrame(frame_inicial, fg_color="#f8f8f8")
+frame_direita = ctk.CTkFrame(frame_inicial, fg_color="#d1d1d1")
 frame_direita.pack(side="left", fill="both", expand=True)
 
 ctk.CTkLabel(frame_direita, text="Sistema de Agendamento de Consultas",
@@ -146,6 +147,45 @@ def abrir_calendario():
         janela_cal.destroy()
     ctk.CTkButton(janela_cal, text="Selecionar", command=selecionar_data).pack(pady=10)
 
+def login():
+    for widget in app.winfo_children():
+        widget.destroy()
+
+    img1 = Image.open("usuario.png")
+    ctk_img1 = ctk.CTkImage(light_image=img1, size=(21, 21))
+    img2 = Image.open("senha.png")
+    ctk_img2 = ctk.CTkImage(light_image=img2, size=(21, 21))
+    img3 = Image.open("cliqueaqui.png")
+    ctk_img3 = ctk.CTkImage(light_image=img3, size=(21, 21))
+    ctk.CTkLabel(master=app, text="Usuário:", image= ctk_img1, compound='left').pack(pady=10)
+
+    campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
+    campo_usuario.pack(pady=10)
+    ctk.CTkLabel(master=app, text="Senha:", image=ctk_img2, compound='left').pack(pady=10)
+    campo_senha = ctk.CTkEntry (app, placeholder_text="Digite sua senha", show='*')
+    campo_senha.pack(pady=10)
+    resultado = ctk.CTkLabel(app, text='')
+    resultado.pack(pady=10)
+
+    def verificar():
+        email=campo_usuario.get()
+        senha=campo_senha.get()
+        if not campo_usuario.get() or not campo_senha.get():
+          resultado.configure(text="⚠️ Preencha todos os campos!", text_color="yellow")
+          return
+        global id_usuario_logado
+        id_usuario_logado=verificar_usuario(email, senha) #cria variável global, verifica se ele ta no banco de dados dos usuarios, e pega a id
+        if id_usuario_logado:
+          resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
+          app.after(1000,lambda: inicio()) #adc tela de inicio
+        else:
+         resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
+    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
+
+    cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", image= ctk_img3, compound="right", text_color="blue", cursor="hand2")
+    cads.pack(pady=10)
+    cads.bind("<Button-1>", lambda e: cadastrando())
+
 def cadastrando():
     for widget in app.winfo_children():
         widget.destroy()
@@ -165,17 +205,17 @@ def cadastrando():
     data = ctk.CTkEntry(app, textvariable=data_nascimento_var, state="readonly", placeholder_text="Clique para selecionar")
     data.pack(pady=3)
     ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=2)
-    ctk.CTkLabel(master=app, text='Usuário:', image= ctk_img16, compound='left').pack(pady=1)
-    email_entry = ctk.CTkEntry(master=app, placeholder_text='Digite seu Email', image= ctk_img14, compound='right')
+    ctk.CTkLabel(app, text='Usuário:', image= ctk_img16, compound='left').pack(pady=2)
+    email_entry = ctk.CTkEntry(app, placeholder_text='Digite seu Email', image= ctk_img14, compound='right')
     email_entry.pack(pady=2)
     ctk.CTkLabel(app, text="Senha:").pack(pady=2)
-    senha = ctk.CTkEntry(app, placeholder_text="Digite sua senha:",image= ctk_img15, compound='left',show='*')
-    senha.pack(pady=2)
+    senha_entry = ctk.CTkEntry(app, placeholder_text="Digite sua senha:",image= ctk_img15, compound='right',show='*')
+    senha_entry.pack(pady=2)
 
     def salvar_cadastro():
         global email_cadastrado, senha_cadastrada
         email_cadastrado = email_entry.get()
-        senha_cadastrada = senha.get()
+        senha_cadastrada = senha_entry.get()
 
         if not nome.get() or not cpf.get() or not data_nascimento_var.get() or not email_cadastrado or not senha_cadastrada:
             ctk.CTkLabel(app, text="⚠️ Preencha todos os campos!", text_color="yellow").pack(pady=10)
@@ -192,6 +232,8 @@ def cadastrando():
 
     ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
     ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
+    ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
+    ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
 
 
 
@@ -206,7 +248,6 @@ def login():
     img3 = Image.open("cliqueaqui.png")
     ctk_img3 = ctk.CTkImage(light_image=img3, size=(21, 21))
     ctk.CTkLabel(master=app, text="Usuário:", image= ctk_img1, compound='left').pack(pady=10)
-    ctk.CTkLabel(app, text="Usuário :").pack(pady=10)
 
     campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
     campo_usuario.pack(pady=10)
@@ -276,10 +317,10 @@ def escolher_profissional(regiao,cidade,especialidade):
     for widget in app.winfo_children():
         widget.destroy()
 
-    data_var = tk.StringVar()
+    data_var = tk.StringVar(app)
     img6 = Image.open("profissional.png")
     ctk_img6 = ctk.CTkImage(light_image=img6, size=(21, 21))
-    img7 = Image.open("horario.png")
+    img7 = Image.open("horarios.png")
     ctk_img7 = ctk.CTkImage(light_image=img7, size=(21, 21))
     img8 = Image.open("calendario.png")
     ctk_img8 = ctk.CTkImage(light_image=img8, size=(21, 21))
@@ -357,10 +398,9 @@ def confirmar_agendamento(regiao,cidade,especialidade, profissional, horario, da
         widget.destroy()
     img10 = Image.open("historico.png")
     ctk_img10 = ctk.CTkImage(light_image=img10, size=(100, 100))
-    img11 = Image.open("confirmacao1.png")
+    img11 = Image.open("confirma2.png")
     ctk_img11 = ctk.CTkImage(light_image=img11, size=(100, 100))
-    img12 = Image.open("confirmacao2.png")
-    ctk_img12 = ctk.CTkImage(light_image=img12, size=(100, 100))
+    
 
     
     ctk.CTkLabel(master=app, text="Agendamento Confirmado!", image=ctk_img11, compound='left' , font=("Arial", 20, "bold")).pack(pady=10)
