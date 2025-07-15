@@ -4,6 +4,9 @@ from tkcalendar import Calendar
 from datetime import datetime, date, timedelta
 import sqlite3
 from PIL import Image, ImageTk
+import smtplib
+from email.message import EmailMessage
+
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -276,12 +279,31 @@ def login():
     cads.pack(pady=10)
     cads.bind("<Button-1>", lambda e: cadastrando())
 
+    esqueci = ctk.CTkLabel(app, text="Esqueci minha senha", text_color="blue", cursor="hand2")
+    esqueci.pack(pady=10)
+    esqueci.bind("<Button-1>", lambda e: ctk.CTkLabel(app, text="Entre em contato com o suporte para recuperar sua senha.").pack(pady=10))
+    suporte = ctk.CTkLabel(app, text="Suporte", text_color="blue", cursor="hand2")
+    suporte.pack(pady=10)
+    suporte.bind("<Button-1>", lambda e: enviar_email(email_cadastrado, "Recuperação de Senha"))
+def enviar_email(destinatario, assunto, mensagem):
+    email_remetente = ''
+    senha_remetente = ''
+    msg = EmailMessage()
+    msg['Subject'] = assunto
+    msg['From'] = email_remetente
+    msg['To'] = destinatario
+    destinatario = email_cadastrado
+    msg.set_content(mensagem)
 def inicio():
     for widget in app.winfo_children():
         widget.destroy()
+
+    img17 = Image.open("escolha.png")
+    ctk_img17 = ctk.CTkImage(light_image=img17, size=(21, 21))
     ctk.CTkLabel(app,text="Bem-vindo(a)! O que deseja fazer?").pack(pady=5)
     ctk.CTkButton(app, text="Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
     ctk.CTkButton(app,text="Iniciar sessão de agendamento de consultas", command=lambda:escolher_regiao()).pack(pady=10)
+    ctk.CTkImage(app, image=ctk_img17, compound= 'center').pack(pady=10)
 
 
 def escolher_regiao(): #adc def p regiao
