@@ -13,19 +13,15 @@ ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.geometry("800x500")
-global corpo1
+frame_inicial = ctk.CTkFrame(app, fg_color="#d1d1d1")
+frame_login = ctk.CTkFrame(app, fg_color="#d1d1d1")
 
-frame_inicial = ctk.CTkFrame(app)
-frame_login = ctk.CTkFrame(app)
-
-frame_inicial.pack(fill="both", expand=True)
 
 def mostrar_login():
-    cursor2.execute("insert into agendamentos (especialidade, profissional,horario,data, usuario_id) values (?,?,?,?,?) ", ...)
     frame_inicial.pack_forget()
     frame_login.pack(fill="both", expand=True)
 
-frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="white")
+frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="cyan")
 frame_esquerda.pack(side="left", fill="both")
 
 imagem = Image.open("confirma1.png")
@@ -170,7 +166,6 @@ def login():
     campo_senha.pack(pady=10)
     resultado = ctk.CTkLabel(app, text='')
     resultado.pack(pady=10)
-
     def verificar():
         email=campo_usuario.get()
         senha=campo_senha.get()
@@ -185,10 +180,41 @@ def login():
         else:
          resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
     ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
+    
+    recsenha = ctk.CTkLabel (app, text="Recuperar Senha", text_color='blue', cursor='hand2') 
+    recsenha.pack(pady=10)
+    recsenha.bind("<Button-1>", lambda e: recuperar_senha())
 
     cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", image= ctk_img3, compound="right", text_color="blue", cursor="hand2")
     cads.pack(pady=10)
     cads.bind("<Button-1>", lambda e: cadastrando())
+    
+    def recuperar_senha():
+        for widget in app.winfo_children():
+            widget.destroy()
+        
+        host = "smtp.gmail.com" # servidor SMTP do Gmail
+        port = 587  # porta para conexão TLS
+        login = email_cadastrado 
+        senha = senha_cadastrada
+
+        server = smtplib.SMTP(host, port) 
+        server.starttls()
+        server.ehlo() 
+        server.login(login, senha)
+
+        corpo = f"Olá,\n\nVocê solicitou a recuperação de senha. Sua senha é: {senha_cadastrada}\n\nSe você não solicitou essa recuperação, por favor, ignore este email.\n\nAtenciosamente,\nEquipe de Suporte."
+        email_msg = MIMEMultipart()
+        email_msg['From'] = login
+        email_msg['To'] = email_cadastrado
+        email_msg['Subject'] = 'Confirmação de Agendamento'
+        email_msg.attach(MIMEText(corpo, 'plain'))
+        server.sendmail(login, email_cadastrado, email_msg.as_string())
+        server.quit()
+        resultado.configure(text="✅ Instruções de recuperação enviadas para o seu email.", text_color="green")    
+    
+
+    
 
 def cadastrando():
     for widget in app.winfo_children():
@@ -206,14 +232,14 @@ def cadastrando():
     cpf = ctk.CTkEntry(app, placeholder_text="Digite seu CPF")
     cpf.pack(pady=2)
     ctk.CTkLabel(app, text="Data de Nascimento:").pack(pady=2)
-    data = ctk.CTkEntry(app, textvariable=data_nascimento_var, state="readonly", placeholder_text="Clique para selecionar")
+    data = ctk.CTkEntry(app, textvariable=data_nascimento_var, state="readonly", placeholder_text="XX/XX/XXXX")
     data.pack(pady=3)
     ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=2)
     ctk.CTkLabel(app, text='Usuário:', image= ctk_img16, compound='left').pack(pady=2)
-    email_entry = ctk.CTkEntry(app, placeholder_text='Digite seu Email', image= ctk_img14, compound='right')
+    email_entry = ctk.CTkEntry(app, placeholder_text='Digite seu Email')
     email_entry.pack(pady=2)
-    ctk.CTkLabel(app, text="Senha:").pack(pady=2)
-    senha_entry = ctk.CTkEntry(app, placeholder_text="Digite sua senha:",image= ctk_img15, compound='right',show='*')
+    ctk.CTkLabel(app, text="Senha:", image=ctk_img15, compound='left').pack(pady=2)
+    senha_entry = ctk.CTkEntry(app, placeholder_text="Digite sua senha:", show='*')
     senha_entry.pack(pady=2)
 
     def salvar_cadastro():
@@ -236,56 +262,7 @@ def cadastrando():
 
     ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
     ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
-    ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
-    ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
 
-
-
-def login():
-    for widget in app.winfo_children():
-        widget.destroy()
-
-    img1 = Image.open("usuario.png")
-    ctk_img1 = ctk.CTkImage(light_image=img1, size=(21, 21))
-    img2 = Image.open("senha.png")
-    ctk_img2 = ctk.CTkImage(light_image=img2, size=(21, 21))
-    img3 = Image.open("cliqueaqui.png")
-    ctk_img3 = ctk.CTkImage(light_image=img3, size=(21, 21))
-    ctk.CTkLabel(master=app, text="Usuário:", image= ctk_img1, compound='left').pack(pady=10)
-
-    campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
-    campo_usuario.pack(pady=10)
-    ctk.CTkLabel(master=app, text="Senha:", image=ctk_img2, compound='left').pack(pady=10)
-    campo_senha = ctk.CTkEntry (app, placeholder_text="Digite sua senha", show='*')
-    campo_senha.pack(pady=10)
-    resultado = ctk.CTkLabel(app, text='')
-    resultado.pack(pady=10)
-
-    def verificar():
-        email=campo_usuario.get()
-        senha=campo_senha.get()
-        if not campo_usuario.get() or not campo_senha.get():
-          resultado.configure(text="⚠️ Preencha todos os campos!", text_color="yellow")
-          return
-        global id_usuario_logado
-        id_usuario_logado=verificar_usuario(email, senha) #cria variável global, verifica se ele ta no banco de dados dos usuarios, e pega a id
-        if id_usuario_logado:
-          resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
-          app.after(1000,lambda: inicio()) #adc tela de inicio
-        else:
-         resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
-    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
-
-    cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", image= ctk_img3, compound="right", text_color="blue", cursor="hand2")
-    cads.pack(pady=10)
-    cads.bind("<Button-1>", lambda e: cadastrando())
-
-    esqueci = ctk.CTkLabel(app, text="Esqueci minha senha", text_color="blue", cursor="hand2")
-    esqueci.pack(pady=10)
-    esqueci.bind("<Button-1>", lambda e: ctk.CTkLabel(app, text="Entre em contato com o suporte para recuperar sua senha.").pack(pady=10))
-    suporte = ctk.CTkLabel(app, text="Suporte", text_color="blue", cursor="hand2")
-    suporte.pack(pady=10)
-    suporte.bind("<Button-1>", lambda e: enviar_email(email_cadastrado, "Recuperação de Senha"))
 def inicio():
     for widget in app.winfo_children():
         widget.destroy()
@@ -295,9 +272,7 @@ def inicio():
     ctk.CTkLabel(app,text="Bem-vindo(a)! O que deseja fazer?").pack(pady=5)
     ctk.CTkButton(app, text="Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
     ctk.CTkButton(app,text="Iniciar sessão de agendamento de consultas", command=lambda:escolher_regiao()).pack(pady=10)
-    ctk.CTkImage(app, image=ctk_img17, compound= 'center').pack(pady=10)
-
-
+    
 def escolher_regiao(): #adc def p regiao
     for widget in app.winfo_children():
         widget.destroy()
@@ -420,7 +395,6 @@ def confirmar_agendamento(regiao,cidade,especialidade, profissional, horario, da
     ctk.CTkLabel(master=app, text="Agendamento Confirmado!", image=ctk_img11, compound='left' , font=("Arial", 20, "bold")).pack(pady=10)
     cursor2.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id) values (?,?,?,?,?,?,?)",
                     (regiao, cidade, especialidade, profissional, horario, data, id_usuario_logado)) #guarda em agendamentos
-    cursor2.execute("insert into agendamentos (especialidade, profissional,horario,data, usuario_id) values (?,?,?,?,?) ",(especialidade,profissional,horario,data,id_usuario_logado)) #guarda em agendamentos
     conector2.commit()
     corpo1 = ctk.CTkLabel(app, text=f"Consulta marcada em {regiao}, na cidade de {cidade}, com {profissional}\nEspecialidade: {especialidade}\nData: {data}\nHorário: {horario}", text_color="green")
     corpo1.pack(pady=10)
@@ -471,7 +445,9 @@ def enviar_email():
     email_msg.attach(MIMEText(corpo, 'plain'))
     server.sendmail(login, email_cadastrado, email_msg.as_string())
     server.quit()
-login()
+
+    ctk.CTkLabel(app, text="✅ E-mail enviado com sucesso!", text_color="green").pack(pady=10)
+mostrar_login()  
 app.mainloop()
 
 #O QUE FALTA: 1- ORGANIZAR MÉDICOS POR CIDADES/ 2- BUG DO HISTORICO??/ 3- PARTE VISUAL/ 4- CONDICIONAIS DO E-MAIL E CPF ...
