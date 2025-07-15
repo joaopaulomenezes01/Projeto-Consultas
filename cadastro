@@ -24,7 +24,7 @@ def mostrar_login():
 frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="white")
 frame_esquerda.pack(side="left", fill="both")
 
-imagem = Image.open("testa.jpeg")
+imagem = Image.open("confirma1.png")
 ctk_img = ctk.CTkImage(light_image=imagem, size=(300, 300))
 label_img = ctk.CTkLabel(frame_esquerda, image=ctk_img, text="")
 label_img.pack(expand=True)
