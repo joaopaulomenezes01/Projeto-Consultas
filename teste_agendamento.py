@@ -490,3 +490,4 @@ def enviar_email():
     ctk.CTkLabel(app, text="✅ E-mail enviado com sucesso!", text_color="green").pack(pady=10)
 mostrar_login()  
 app.mainloop()
+
