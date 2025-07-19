@@ -116,26 +116,27 @@ conector = mysql.connector.connect(user='root', password='Fafa300967@', host='lo
 conector2 = mysql.connector.connect(user='root', password='Fafa300967@', host='localhost', database='agendamento')
 cursor = conector.cursor()
 cursor2 = conector2.cursor()
-
+cursor.execute('CREATE DATABASE IF NOT EXISTS cadastro2')
+cursor2.execute('CREATE DATABASE IF NOT EXISTS agendamento')
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios
-(id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nome TEXT NOT NULL,
-    cpf TEXT NOT NULL,
-    data_nascimento TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    senha TEXT NOT NULL) 
+(id INT  AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cpf VARCHAR (11) NOT NULL,
+    data_nascimento VARCHAR(8) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    senha VARCHAR(100) NOT NULL) 
 ''')
 
 cursor2.execute('''
 CREATE TABLE IF NOT EXISTS agendamentos
-(id integer PRIMARY KEY AUTOINCREMENT, regioes TEXT NOT NULL,
-    cidade TEXT NOT NULL,
-    especialidade TEXT NOT NULL,
-    profissional TEXT NOT NULL,
-    horario TEXT NOT NULL,
-    data TEXT NOT NULL,
-    usuario_id INTEGER NOT NULL,
+(id INT AUTO_INCREMENT PRIMARY KEY , regioes TEXT NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    especialidade VARCHAR(100) NOT NULL,
+    profissional VARCHAR (100) NOT NULL,
+    horario VARCHAR(5) NOT NULL,
+    data VARCHAR(100) NOT NULL,
+    usuario_id INT NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id))
 ''') 
 
@@ -146,7 +147,7 @@ def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
     try:
         cursor.execute('''
         INSERT INTO usuarios (nome, cpf, data_nascimento, email, senha)
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s)
         ''', (nome, cpf, data_nascimento, email, senha))
         conector.commit()
         return True
@@ -379,7 +380,7 @@ def escolher_profissional(regiao,cidade,especialidade):
 
     def escolher_horario(profissional,data): #nova função
         horarios_ocupados=[]
-        cursor2.execute("SELECT horario FROM agendamentos WHERE profissional=? AND data=?", [profissional,data])
+        cursor2.execute("SELECT horario FROM agendamentos WHERE profissional=%s AND data=%s", (profissional, data))
         resultado=cursor2.fetchall()
         for item in resultado:
             horarios_ocupados.append(item[0]) 
@@ -427,8 +428,7 @@ def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolh
 
     
     ctk.CTkLabel(master=app, text="Agendamento Confirmado!", image=ctk_img11, compound='left' , font=("Arial", 20, "bold")).pack(pady=10)
-    cursor2.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id) values (?,?,?,?,?,?,?)",
-                    (regiao_escolhida, cidade_escolhida, especialidade_escolhida, profissional, horario, data, id_usuario_logado))
+    cursor2.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id) values (%s,%s,%s,%s,%s,%s,%s)", (regiao_escolhida, cidade_escolhida, especialidade_escolhida, profissional, horario, data, id_usuario_logado))
     conector2.commit()
     corpo1 = ctk.CTkLabel(app, text=f"Consulta marcada em {regiao_escolhida}, na cidade de {cidade_escolhida}, com {profissional}\nEspecialidade: {especialidade_escolhida}\nData: {data}\nHorário: {horario}", text_color="green")
     corpo1.pack(pady=10)
@@ -442,7 +442,7 @@ def historico_agendamentos():
     ctk_img13 = ctk.CTkImage(light_image=img13, size=(21, 21))
     ctk.CTkLabel(app, text="Histórico de Agendamentos", image=ctk_img13, compound='right').pack(pady=10)
 
-    cursor.execute('SELECT nome FROM usuarios WHERE id=?', [id_usuario_logado])
+    cursor.execute('SELECT nome FROM usuarios WHERE id=%s', (id_usuario_logado,))
     nomes=cursor.fetchone()
     if not nomes:
         nome_usuario_logado='Usuário não encontrado'
@@ -450,7 +450,7 @@ def historico_agendamentos():
         nome_usuario_logado=nomes[0]
         ctk.CTkLabel(app, text=f"Consultas de {nome_usuario_logado}:").pack(pady=5)
     
-    cursor2.execute('SELECT * FROM agendamentos WHERE usuario_id=?', [id_usuario_logado])
+    cursor2.execute('SELECT * FROM agendamentos WHERE usuario_id=%s', (id_usuario_logado,))
     agendamentos = cursor2.fetchall()
     global corpo1_text
     corpo1_text=''
