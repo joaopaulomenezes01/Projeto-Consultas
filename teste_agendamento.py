@@ -11,11 +11,12 @@ import customtkinter as ctk
 import tkinter as tk
 from tkcalendar import Calendar
 from datetime import datetime, date, timedelta
-import sqlite3
+
 from PIL import Image, ImageTk
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import mysql.connector
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -111,8 +112,8 @@ ctk.CTkLabel(frame_esquerda, text="© 2025 Todos os direitos reservados", font=(
 frame_direita = ctk.CTkFrame(frame_inicial,fg_color="#d1d1d1")
 frame_direita.pack(side="left", fill="both", expand=True)
 
-conector = sqlite3.connect('cadastro.db')
-conector2 = sqlite3.connect('agendamento.db')
+conector = mysql.connector.connect(user='root', password='Fafa300967@', host='localhost', database='cadastro2')
+conector2 = mysql.connector.connect(user='root', password='Fafa300967@', host='localhost', database='agendamento')
 cursor = conector.cursor()
 cursor2 = conector2.cursor()
 
@@ -149,12 +150,12 @@ def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
         ''', (nome, cpf, data_nascimento, email, senha))
         conector.commit()
         return True
-    except sqlite3.IntegrityError:
+    except mysql.connector.IntegrityError:
         return False
     
 def verificar_usuario(email, senha):
     cursor.execute('''
-    SELECT id FROM usuarios WHERE email = ? AND senha = ?
+    SELECT id FROM usuarios WHERE email = %s AND senha = %s
     ''', (email, senha))
     usuario = cursor.fetchone()
     return usuario[0] if usuario else None
@@ -451,12 +452,15 @@ def historico_agendamentos():
     
     cursor2.execute('SELECT * FROM agendamentos WHERE usuario_id=?', [id_usuario_logado])
     agendamentos = cursor2.fetchall()
-    
+    global corpo1_text
+    corpo1_text=''
     if not agendamentos:
-        ctk.CTkLabel(app, text="Nenhum agendamento encontrado.").pack(pady=10)
+        corpo1_text = "Nenhum agendamento encontrado."
+        ctk.CTkLabel(app, text=corpo1_text).pack(pady=10)
     else:
         for agendamento in agendamentos:
-            ctk.CTkLabel(app, text=f"Especialidade: {agendamento[1]}, Profissional: {agendamento[2]}, Horário: {agendamento[3]}, Data: {agendamento[4]}").pack(pady=5)
+            corpo1_text += f"Especialidade: {agendamento[3]}, Profissional: {agendamento[4]}, Horário: {agendamento[5]}, Data: {agendamento[6]}\n"
+            ctk.CTkLabel(app, text=corpo1_text).pack(pady=5)
 
     ctk.CTkButton(app, text="Voltar", command=inicio).pack(pady=10)
 
@@ -475,9 +479,9 @@ def enviar_email():
     server.starttls()
     server.ehlo() 
     server.login(login, senha)
-    
-   
-    detalhes_agendamento = corpo1.cget("text") if "corpo1" in globals() and corpo1 is not None else "Detalhes do agendamento não disponíveis."
+
+
+    detalhes_agendamento = corpo1_text if "corpo1_text" in globals() and corpo1_text is not None else "Detalhes do agendamento não disponíveis."
     corpo = 'Olá,\n\nSua consulta foi agendada com sucesso!\n\nDetalhes do agendamento:\n' + detalhes_agendamento + '\n\nAgradecemos por escolher nosso serviço.\n\nAtenciosamente,\nEquipe de Agendamento'
     email_msg = MIMEMultipart()
     email_msg['From'] = login
