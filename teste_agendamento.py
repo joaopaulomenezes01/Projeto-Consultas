@@ -26,11 +26,11 @@ frame_inicial = ctk.CTkFrame(app, fg_color="#d1d1d1")
 conector = mysql.connector.connect(
     host='localhost', 
     user='root', 
-    password='Fafa300967@', )
+    password='Fafa300967@',
+    database='sistemadecadastros'
+)
 
 cursor = conector.cursor()
-cursor.execute('''CREATE DATABASE IF NOT EXISTS sistemadecadastros;''')
-conector.database = 'sistemadecadastros'
 cursor.execute('USE sistemadecadastros;')
 
 
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS usuarios
     senha VARCHAR(100) NOT NULL) 
 ''')
 
-cursor.execute('''
+cursor.execute ('''
 CREATE TABLE IF NOT EXISTS agendamentos
 (id INT AUTO_INCREMENT PRIMARY KEY , 
     regioes VARCHAR(100) NOT NULL,
@@ -55,13 +55,12 @@ CREATE TABLE IF NOT EXISTS agendamentos
     data DATE NOT NULL,
     usuario_id INT NOT NULL,
     FOREIGN KEY (usuario_id) 
-REFERENCES usuarios(id))
-                ON DELETE CASCADE
-''')
+REFERENCES usuarios(id))  ''')
 cursor.execute('SELECT * FROM usuarios')
 cursor.execute('SELECT * FROM agendamentos')
+cursor.fetchall()
 conector.commit()
-conector.close()
+
 def login(): #subi o login aqui
     for widget in frame_direita.winfo_children():
         widget.destroy()
