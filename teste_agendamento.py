@@ -99,7 +99,7 @@ def login():
     def recuperar_senha():
         for widget in app.winfo_children():
             widget.destroy()
-        
+        global email_cadastrado
         host = "smtp.gmail.com" # servidor SMTP do Gmail
         port = 587  # porta para conexão TLS
         login = email_cadastrado 
