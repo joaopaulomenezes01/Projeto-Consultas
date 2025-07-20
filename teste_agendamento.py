@@ -112,36 +112,42 @@ ctk.CTkLabel(frame_esquerda, text="© 2025 Todos os direitos reservados", font=(
 frame_direita = ctk.CTkFrame(frame_inicial,fg_color="#d1d1d1")
 frame_direita.pack(side="left", fill="both", expand=True)
 
-conector = mysql.connector.connect(user='root', password='Fafa300967@', host='localhost', database='cadastro2')
-conector2 = mysql.connector.connect(user='root', password='Fafa300967@', host='localhost', database='agendamento')
+conector = mysql.connector.connect( host='localhost', user='root', password='Fafa300967@')
+
 cursor = conector.cursor()
-cursor2 = conector2.cursor()
-cursor.execute('CREATE DATABASE IF NOT EXISTS cadastro2')
-cursor2.execute('CREATE DATABASE IF NOT EXISTS agendamento')
+cursor.execute('''CREATE DATABASE IF NOT EXISTS agendamento_consultas''')
+conector.close()
+conector = mysql.connector.connect(host='localhost', user='root', password='Fafa300967@', database='agendamento_consultas')
+cursor = conector.cursor()
+cursor.execute('SELECT * FROM usuarios')
+cursor.execute('SELECT * FROM agendamentos')
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS usuarios
 (id INT  AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf VARCHAR (11) NOT NULL,
     data_nascimento VARCHAR(8) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL  UNIQUE,
     senha VARCHAR(100) NOT NULL) 
 ''')
 
-cursor2.execute('''
+cursor.execute('''
 CREATE TABLE IF NOT EXISTS agendamentos
-(id INT AUTO_INCREMENT PRIMARY KEY , regioes TEXT NOT NULL,
+(id INT AUTO_INCREMENT PRIMARY KEY , 
+    regioes VARCHAR(100) NOT NULL,
     cidade VARCHAR(100) NOT NULL,
     especialidade VARCHAR(100) NOT NULL,
-    profissional VARCHAR (100) NOT NULL,
-    horario VARCHAR(5) NOT NULL,
-    data VARCHAR(100) NOT NULL,
+    profissional VARCHAR(100) NOT NULL,
+    horario TIME NOT NULL,
+    data DATE NOT NULL,
     usuario_id INT NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id))
-''') 
+    FOREIGN KEY (usuario_id) 
+REFERENCES usuarios(id))
+                ON DELETE CASCADE
+''')
 
 conector.commit()
-conector2.commit()
+conector.close()
 
 def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
     try:
@@ -380,8 +386,8 @@ def escolher_profissional(regiao,cidade,especialidade):
 
     def escolher_horario(profissional,data): #nova função
         horarios_ocupados=[]
-        cursor2.execute("SELECT horario FROM agendamentos WHERE profissional=%s AND data=%s", (profissional, data))
-        resultado=cursor2.fetchall()
+        cursor.execute("SELECT horario FROM agendamentos WHERE profissional=%s AND data=%s", (profissional, data))
+        resultado=cursor.fetchall()
         for item in resultado:
             horarios_ocupados.append(item[0]) 
         
@@ -428,8 +434,8 @@ def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolh
 
     
     ctk.CTkLabel(master=app, text="Agendamento Confirmado!", image=ctk_img11, compound='left' , font=("Arial", 20, "bold")).pack(pady=10)
-    cursor2.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id) values (%s,%s,%s,%s,%s,%s,%s)", (regiao_escolhida, cidade_escolhida, especialidade_escolhida, profissional, horario, data, id_usuario_logado))
-    conector2.commit()
+    cursor.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id) values (%s,%s,%s,%s,%s,%s,%s)", (regiao_escolhida, cidade_escolhida, especialidade_escolhida, profissional, horario, data, id_usuario_logado))
+    conector.commit()
     corpo1 = ctk.CTkLabel(app, text=f"Consulta marcada em {regiao_escolhida}, na cidade de {cidade_escolhida}, com {profissional}\nEspecialidade: {especialidade_escolhida}\nData: {data}\nHorário: {horario}", text_color="green")
     corpo1.pack(pady=10)
     ctk.CTkButton(app, text="Sair", command=app.quit).pack(pady=10)
@@ -450,8 +456,8 @@ def historico_agendamentos():
         nome_usuario_logado=nomes[0]
         ctk.CTkLabel(app, text=f"Consultas de {nome_usuario_logado}:").pack(pady=5)
     
-    cursor2.execute('SELECT * FROM agendamentos WHERE usuario_id=%s', (id_usuario_logado,))
-    agendamentos = cursor2.fetchall()
+    cursor.execute('SELECT * FROM agendamentos WHERE usuario_id=%s', (id_usuario_logado,))
+    agendamentos = cursor.fetchall()
     global corpo1_text
     corpo1_text=''
     if not agendamentos:
