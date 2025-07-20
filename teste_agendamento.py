@@ -112,11 +112,8 @@ ctk.CTkLabel(frame_esquerda, text="© 2025 Todos os direitos reservados", font=(
 frame_direita = ctk.CTkFrame(frame_inicial,fg_color="#d1d1d1")
 frame_direita.pack(side="left", fill="both", expand=True)
 
-conector = mysql.connector.connect( host='localhost', user='root', password='Fafa300967@')
+conector = mysql.connector.connect( host='localhost', user='root', password='Fafa300967@', database='agendamento_consultas')
 
-cursor = conector.cursor()
-cursor.execute('''CREATE DATABASE IF NOT EXISTS agendamento_consultas''')
-conector.close()
 conector = mysql.connector.connect(host='localhost', user='root', password='Fafa300967@', database='agendamento_consultas')
 cursor = conector.cursor()
 cursor.execute('SELECT * FROM usuarios')
