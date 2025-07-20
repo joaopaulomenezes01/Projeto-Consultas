@@ -23,7 +23,45 @@ ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.geometry("800x500")
 frame_inicial = ctk.CTkFrame(app, fg_color="#d1d1d1")
+conector = mysql.connector.connect(
+    host='localhost', 
+    user='root', 
+    password='Fafa300967@', )
 
+cursor = conector.cursor()
+cursor.execute('''CREATE DATABASE IF NOT EXISTS sistemadecadastros;''')
+conector.database = 'sistemadecadastros'
+cursor.execute('USE sistemadecadastros;')
+
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS usuarios
+(id INT  AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cpf VARCHAR (11) NOT NULL,
+    data_nascimento VARCHAR(8) NOT NULL,
+    email VARCHAR(100) NOT NULL  UNIQUE,
+    senha VARCHAR(100) NOT NULL) 
+''')
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS agendamentos
+(id INT AUTO_INCREMENT PRIMARY KEY , 
+    regioes VARCHAR(100) NOT NULL,
+    cidade VARCHAR(100) NOT NULL,
+    especialidade VARCHAR(100) NOT NULL,
+    profissional VARCHAR(100) NOT NULL,
+    horario TIME NOT NULL,
+    data DATE NOT NULL,
+    usuario_id INT NOT NULL,
+    FOREIGN KEY (usuario_id) 
+REFERENCES usuarios(id))
+                ON DELETE CASCADE
+''')
+cursor.execute('SELECT * FROM usuarios')
+cursor.execute('SELECT * FROM agendamentos')
+conector.commit()
+conector.close()
 def login(): #subi o login aqui
     for widget in frame_direita.winfo_children():
         widget.destroy()
@@ -112,45 +150,7 @@ ctk.CTkLabel(frame_esquerda, text="© 2025 Todos os direitos reservados", font=(
 frame_direita = ctk.CTkFrame(frame_inicial,fg_color="#d1d1d1")
 frame_direita.pack(side="left", fill="both", expand=True)
 
-conector = mysql.connector.connect(
-    host='localhost', 
-    user='root', 
-    password='Fafa300967@', )
 
-cursor = conector.cursor()
-cursor.execute('''CREATE DATABASE IF NOT EXISTS sistemadecadastros;''')
-conector.database = 'sistemadecadastros'
-cursor.execute('USE sistemadecadastros;')
-
-cursor.execute('SELECT * FROM usuarios')
-cursor.execute('SELECT * FROM agendamentos')
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS usuarios
-(id INT  AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    cpf VARCHAR (11) NOT NULL,
-    data_nascimento VARCHAR(8) NOT NULL,
-    email VARCHAR(100) NOT NULL  UNIQUE,
-    senha VARCHAR(100) NOT NULL) 
-''')
-
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS agendamentos
-(id INT AUTO_INCREMENT PRIMARY KEY , 
-    regioes VARCHAR(100) NOT NULL,
-    cidade VARCHAR(100) NOT NULL,
-    especialidade VARCHAR(100) NOT NULL,
-    profissional VARCHAR(100) NOT NULL,
-    horario TIME NOT NULL,
-    data DATE NOT NULL,
-    usuario_id INT NOT NULL,
-    FOREIGN KEY (usuario_id) 
-REFERENCES usuarios(id))
-                ON DELETE CASCADE
-''')
-
-conector.commit()
-conector.close()
 
 def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
     try:
