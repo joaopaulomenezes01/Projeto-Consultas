@@ -85,27 +85,27 @@ def login():
     
     
     def verificar ():
+        email=campo_usuario.get()
+        senha=campo_senha.get()
+        if not email or not senha:
+            resultado.configure(text=f"⚠️ Preencha todos os campos!", text_color="red")
+            return
         try:
-           email = campo_usuario.get()
-           senha = campo_senha.get()
            conector = conectar_banco()
            cursor = conector.cursor()
            cursor.execute("SELECT id FROM usuarios WHERE email=%s AND senha=%s", (email, senha))
            cursor.fetchone()
            conector.close()
+           id_usuario_logado=verificar_usuario(email, senha) #subi aqui pro try
+           if id_usuario_logado:
+               resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
+               app.after(1000,lambda:inicio())
+           else:
+                resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
         except:
-            id_usuario_logado=verificar_usuario(email, senha)
-            if id_usuario_logado:
-                resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
-                app.after(1000,lambda: inicio())
+            resultado.configure(text="❌ Usuário não encontrado. \n Por favor, realize seu cadastro.", text_color="red")
+            app.after(1000, lambda:cadastrando)
 
-        if not email or not senha:
-            resultado.configure(text=f"⚠️ Preencha todos os campos!", text_color="yellow")
-        else:
-            resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
-            return
-
-        
     ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
         
        
