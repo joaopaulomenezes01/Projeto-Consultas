@@ -1,4 +1,5 @@
 
+from logging import config
 import customtkinter as ctk
 import tkinter as tk
 from tkcalendar import Calendar
@@ -9,19 +10,26 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import mysql.connector
+from tkinter import messagebox
+
+configure = config 
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.geometry("800x500")
 frame_inicial = ctk.CTkFrame(app, fg_color="#d1d1d1")
-conector = mysql.connector.connect(
-    host='localhost', 
-    user='root', 
-    password='Fafa300967@',
-    database='sistemadecadastros'
-)
 
+def conectar_banco():
+    return mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='Fafa300967@',
+        database='sistemadecadastros'
+    )
+
+
+conector = conectar_banco()
 cursor = conector.cursor()
 cursor.execute('USE sistemadecadastros;')
 
@@ -54,6 +62,7 @@ cursor.execute('SELECT * FROM agendamentos')
 cursor.fetchall()
 conector.commit()
 
+
 def login(): 
     for widget in app.winfo_children():
         widget.destroy()
@@ -73,21 +82,33 @@ def login():
     campo_senha.pack(pady=10)
     resultado = ctk.CTkLabel(app, text='')
     resultado.pack(pady=10)
-    def verificar():
-        email=campo_usuario.get()
-        senha=campo_senha.get()
-        if not campo_usuario.get() or not campo_senha.get():
-          resultado.configure(text="⚠️ Preencha todos os campos!", text_color="yellow")
-          return
-        global id_usuario_logado
-        id_usuario_logado=verificar_usuario(email, senha)
-        if id_usuario_logado:
-          resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
-          app.after(1000,lambda: inicio()) 
-        else:
-         resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
-    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
     
+    
+    def verificar ():
+        try:
+           email = campo_usuario.get()
+           senha = campo_senha.get()
+           conector = conectar_banco()
+           cursor = conector.cursor()
+           cursor.execute("SELECT id FROM usuarios WHERE email=%s AND senha=%s", (email, senha))
+           cursor.fetchone()
+           conector.close()
+        except:
+            id_usuario_logado=verificar_usuario(email, senha)
+            if id_usuario_logado:
+                resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
+                app.after(1000,lambda: inicio())
+
+        if not email or not senha:
+            resultado.configure(text=f"⚠️ Preencha todos os campos!", text_color="yellow")
+        else:
+            resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
+            return
+
+        
+    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
+        
+       
     recsenha = ctk.CTkLabel (app, text="Recuperar Senha", text_color='blue', cursor='hand2') 
     recsenha.pack(pady=10)
     recsenha.bind("<Button-1>", lambda e: recuperar_senha())
@@ -99,6 +120,8 @@ def login():
     def recuperar_senha():
         for widget in app.winfo_children():
             widget.destroy()
+        img12 = Image.open("email.png")
+        ctk_img12 = ctk.CTkImage(light_image=img12, size=(21, 21))
         global email_cadastrado
         host = "smtp.gmail.com" # servidor SMTP do Gmail
         port = 587  # porta para conexão TLS
@@ -146,16 +169,25 @@ ctk.CTkButton(frame_direita, text="Iniciar", command=login).pack(pady=2)
 
 def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
     try:
+        conector = conectar_banco()
+        cursor = conector.cursor()
         cursor.execute('''
         INSERT INTO usuarios (nome, cpf, data_nascimento, email, senha)
         VALUES (%s, %s, %s, %s, %s)
         ''', (nome, cpf, data_nascimento, email, senha))
         conector.commit()
+        conector.close()
         return True
     except mysql.connector.IntegrityError:
+        messagebox.showerror("Erro", "Usuário já cadastrado.")
         return False
-    
+    except Exception as e:
+        messagebox.showerror("Erro", f"Erro ao cadastrar usuário: {e}")
+        return False
+
 def verificar_usuario(email, senha):
+    conector = conectar_banco()
+    cursor = conector.cursor()
     cursor.execute('''
     SELECT id FROM usuarios WHERE email = %s AND senha = %s
     ''', (email, senha))
