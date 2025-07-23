@@ -217,7 +217,6 @@ ctk.CTkButton(frame_direita, text="Iniciar", command=login).pack(pady=2)
 
 
 def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
-    try:
         conector = conectar_banco()
         cursor = conector.cursor()
         cursor.execute('''
@@ -226,14 +225,7 @@ def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
         ''', (nome, cpf, data_nascimento, email, senha))
         conector.commit()
         conector.close()
-        return True
-    except mysql.connector.IntegrityError:
-        messagebox.showerror("Erro", "Usuário já cadastrado.")
-        return False
-    except Exception as e:
-        messagebox.showerror("Erro", "Erro ao cadastrar usuário:")
-        return False
-
+      
 def verificar_usuario(email, senha):
     conector = conectar_banco()
     cursor = conector.cursor()
