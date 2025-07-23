@@ -18,7 +18,10 @@ ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
 app.geometry("800x500")
-frame_inicial = ctk.CTkFrame(app, fg_color="#d1d1d1")
+app.title("Sistema de Consultas") #adc titulo p janela do app
+frame_inicial = ctk.CTkFrame(app, fg_color="#B0E5F4")
+frame_inicial.pack(fill="both", expand=True)
+app.configure(fg_color= "#D1E8EF") #adc cor de fundo
 
 def conectar_banco():
     return mysql.connector.connect(
@@ -42,7 +45,7 @@ CREATE TABLE IF NOT EXISTS usuarios
     data_nascimento VARCHAR(10) NOT NULL,
     email VARCHAR(100) NOT NULL  UNIQUE,
     senha VARCHAR(100) NOT NULL) 
-''') ##aumentei o varchar da data de nascimento pq tava dando erro dizendo q era maior q os espaços da tabela
+''') 
 
 cursor.execute ('''
 CREATE TABLE IF NOT EXISTS agendamentos
@@ -53,11 +56,12 @@ CREATE TABLE IF NOT EXISTS agendamentos
     profissional VARCHAR(100) NOT NULL,
     horario TIME NOT NULL,
     data DATE NOT NULL,
+    convenio VARCHAR(100),
     usuario_id INT NOT NULL,
     FOREIGN KEY (usuario_id) 
-REFERENCES usuarios(id))  ''')
+REFERENCES usuarios(id))  ''') #adc o convenio na tabela
 cursor.execute('SELECT * FROM usuarios')
-cursor.fetchall() ##tava faltando esse fetchall
+cursor.fetchall() 
 cursor.execute('SELECT * FROM agendamentos')
 cursor.fetchall()
 conector.commit()
@@ -67,17 +71,18 @@ def login():
     for widget in app.winfo_children():
         widget.destroy()
 
+    ctk.CTkLabel(app, text="Bem-vindo ao Login!", font=("Segoe Ui", 24, "bold")).pack(pady=10)
     img1 = Image.open("usuario.png")
     ctk_img1 = ctk.CTkImage(light_image=img1, size=(21, 21))
     img2 = Image.open("senha.png")
     ctk_img2 = ctk.CTkImage(light_image=img2, size=(21, 21))
     img3 = Image.open("cliqueaqui.png")
     ctk_img3 = ctk.CTkImage(light_image=img3, size=(21, 21))
-    ctk.CTkLabel(master=app, text="Usuário:", image= ctk_img1, compound='left').pack(pady=10)
+    ctk.CTkLabel(master=app, text="Usuário:",font=("Segoe Ui", 14), image= ctk_img1, compound='left').pack(pady=10)
 
     campo_usuario = ctk.CTkEntry(app, placeholder_text="Digite seu email")
     campo_usuario.pack(pady=10)
-    ctk.CTkLabel(master=app, text="Senha:", image=ctk_img2, compound='left').pack(pady=10)
+    ctk.CTkLabel(master=app, text="Senha:",font=("Segoe Ui", 14), image=ctk_img2, compound='left').pack(pady=10)
     campo_senha = ctk.CTkEntry (app, placeholder_text="Digite sua senha", show='*')
     campo_senha.pack(pady=10)
     resultado = ctk.CTkLabel(app, text='')
@@ -183,33 +188,40 @@ Equipe de Suporte"""
             server.quit()
 
             resultado.configure(text="✅ Instruções enviadas para seu e-mail!", text_color="green")
-            app.after(3000, tela_login)  # Voltar à tela de login após 3 segundos
+            app.after(3000,login)  # Voltar à tela de login após 3 segundos
 
         except Exception as e:
             resultado.configure(text=f"❌ Erro ao enviar e-mail: {e}", text_color="red")
 
     ctk.CTkButton(app, text="Enviar", command=enviar_email).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=tela_login).pack(pady=5)
+    ctk.CTkButton(app, text="Voltar", command=login).pack(pady=5)
 
-
+#frame_inicial = ctk.CTkFrame(app, fg_color="#A2EBFF")
 frame_inicial.pack(fill="both", expand=True)
 
-frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="cyan")
-frame_esquerda.pack(side="left", fill="both")
+frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="#A2EBFF")
+frame_esquerda.pack(side="left", fill="both", expand=True)
 
-imagem = Image.open("testa.jpeg")
+imagem = Image.open("img_esteto.png")
 ctk_img = ctk.CTkImage(light_image=imagem, size=(300, 300))
 label_img = ctk.CTkLabel(frame_esquerda, image=ctk_img, text="")
-ctk.CTkLabel(frame_esquerda, text=" Olá! Bem vindo(a) ao \n Sistema de Agendamento de Consultas ",
-font=("Comic Sans MS", 20, "bold")).pack(pady=(50, 10))
-label_img.pack(expand=True)
+ctk.CTkLabel(frame_esquerda, text="  Olá! Bem vindo(a) ao \n Sistema de Agendamentos!  ",
+font=("Segoe Ui", 20, "bold")).pack(pady=(20, 5))
+label_img.pack(expand=True, pady=10)
+ctk.CTkLabel(frame_esquerda, text="Agende suas consultas de forma prática\n e segura com poucos cliques.", 
+font=("Segoe Ui", 15, "bold")).pack(pady=(5,10))
 
-frame_direita = ctk.CTkFrame(frame_inicial,fg_color="#d1d1d1")
+frame_direita = ctk.CTkFrame(frame_inicial,fg_color="#ffffff")
 frame_direita.pack(side="left", fill="both", expand=True)
+ctk.CTkLabel(frame_direita, text="Na nossa rede você encontra:", font=("Segoe Ui", 18, "bold")).pack(pady=(8,10))
+ctk.CTkLabel(frame_direita, text=" Variedade de especialidades e profissionais ✅ \n\n Histórico de consultas disponíveis ✅ \n\n Confirmação da consulta por e-mail ✅\n\n Variedade de convênios aceitos ✅ \n\n Preços acessíveis ✅",
+font=("Segoe Ui", 14,)).pack(pady=(5,10))
+ctk.CTkLabel(frame_direita, text="Confira a clínica mais próxima e agende sua consulta!", font=("Segoe Ui", 15, "bold")).pack(pady=(15,5))
+
 ctk.CTkLabel(frame_direita, text="Desenvolvido por: Júlia Gabrielle e João Paulo",
-font=("Comic Sans MS", 14)).pack(pady=5)
-ctk.CTkLabel(frame_direita, text="Versão 1.0", font=("Comic Sans MS", 14)).pack(pady=5)
-ctk.CTkLabel(frame_direita, text="© 2025 Todos os direitos reservados", font=("Comic Sans MS", 12)).pack(pady=10)
+font=("Segoe Ui", 12)).pack(pady=(8,5))
+ctk.CTkLabel(frame_direita, text="Versão 1.0", font=("Segoe Ui", 10)).pack(pady=5)
+ctk.CTkLabel(frame_direita, text="© 2025 Todos os direitos reservados", font=("Segoe Ui", 12)).pack(pady=8)
 ctk.CTkButton(frame_direita, text="Iniciar", command=login).pack(pady=2)
 
 #def mostrar_login():
@@ -284,6 +296,8 @@ profissionais_sertao={ "Cardiologia": ["Drª Dandara Cruz", "Dr. Celso da Luz"],
                         "Pediatria":["Drª Priscilla Fontes","Dr. Ronaldo Santana"],
                         "Psiquiatria":["Dr. Enzo Vieira","Drª Valentina Eduarda"] }
 
+convenios= ['Hapvida', 'Unimed Recife', 'Unimed Caruaru', 'Amil', 'Bradesco Saúde','SulAmérica', 'Cassi', 'GEAP', 'Saúde Caixa', 'Fusex', 'Particular']
+
 def abrir_calendario():
     janela_cal = tk.Toplevel(app)
     janela_cal.title("Escolha a Data")
@@ -343,32 +357,62 @@ def inicio():
     for widget in app.winfo_children():
         widget.destroy()
 
-    img17 = Image.open("escolha.png")
-    ctk_img17 = ctk.CTkImage(light_image=img17, size=(21, 21))
-    ctk.CTkLabel(app,text="Bem-vindo(a)! O que deseja fazer?").pack(pady=10)
-    ctk.CTkButton(app, text="Ver meu histórico de agendamentos", command=lambda: historico_agendamentos()).pack(pady=10)
-    ctk.CTkButton(app,text="Iniciar sessão de agendamento de consultas", command=lambda:escolher_regiao()).pack(pady=10)
-    
+    img17=Image.open("escolha2.png")
+    ctk_img17 = ctk.CTkImage(light_image=img17, size=(30, 30))
+    ctk.CTkLabel(app,text="O que deseja fazer?",font=("Segoe Ui", 20, "bold"),image=ctk_img17,compound='left').pack(pady=(10,10))
+    ctk.CTkButton(app, text="Ver meu histórico de agendamentos",font=("Segoe Ui", 14), command=lambda: historico_agendamentos()).pack(pady=20)
+    ctk.CTkButton(app,text="Iniciar agendamento de consultas",font=("Segoe Ui", 14), command=lambda:escolher_convenio()).pack(pady=20)
+    ctk.CTkButton(app,text="Ver lista de convênios aceitos", font=("Segoe Ui", 14),command=lambda:mostrar_convenios()).pack(pady=20) #adc esse botao
+
+def mostrar_convenios(): #mostra a lista dos convenios
+    for widget in app.winfo_children():
+        widget.destroy()
+    imgconv=Image.open("convenios.png")
+    ctk_imgconv=ctk.CTkImage(light_image=imgconv, size=(21, 21))
+    ctk.CTkLabel(app,text="Lista de Convênios aceitos pela nossa rede:",font=("Segoe Ui", 20, "bold"), image=ctk_imgconv,compound='left').pack(pady=(10,10))
+    for convenio in convenios:
+        ctk.CTkLabel(app,text=f"{convenio}",font=("Segoe Ui", 14)).pack(pady=5)
+    ctk.CTkButton(app, text='Voltar', command=inicio).pack(pady=5)
+
+def escolher_convenio(): #mostra os convenios para escolha
+    for widget in app.winfo_children():
+        widget.destroy()
+    imgconv=Image.open("convenios.png")
+    ctk_imgconv=ctk.CTkImage(light_image=imgconv, size=(21, 21))
+    ctk.CTkLabel(app,text="Escolha seu Convênio",font=("Segoe Ui", 18, "bold"), image=ctk_imgconv,compound='left').pack(pady=15)
+    ctk.CTkLabel(app,text="❌ Não possui?",font=("Segoe Ui", 16)).pack(pady=10)
+    ctk.CTkLabel(app,text="Apenas no mês de inauguração da nossa rede, a Consulta Particular para qualquer especialidade \n está custando R$75,00! Cuide da sua saúde e não perca essa oportunidade!",font=("Segoe Ui", 14,)).pack(pady=20)
+
+    box_convenio = ctk.CTkOptionMenu(app, values=convenios)
+    box_convenio.pack(pady=10)
+    ctk.CTkButton(app, text="Próximo", command=lambda: salvar_convenio(box_convenio.get())).pack(pady=10)
+    ctk.CTkButton(app, text='Voltar', command=inicio).pack(pady=(10,10))
+
+def salvar_convenio(convenio_escolhido):
+    global convenio
+    convenio=convenio_escolhido
+    escolher_regiao()
+
 def escolher_regiao(): 
     for widget in app.winfo_children():
         widget.destroy()
-    img4 = Image.open("regioes.png")
+    img4 = Image.open("regiao2.png")
     ctk_img4 = ctk.CTkImage(light_image=img4, size=(21, 21))
-    ctk.CTkLabel(app,text="Escolha a região desejada:", image=ctk_img4,compound='left').pack(pady=5)
+    ctk.CTkLabel(app,text="Escolha a região desejada:",font=("Segoe Ui", 18, "bold"), image=ctk_img4,compound='left').pack(pady=5)
     box_regiao=ctk.CTkOptionMenu(app,values=list(regioes.keys()))
-    box_regiao.pack(pady=5)
+    box_regiao.pack(pady=10)
     ctk.CTkButton(app,text="Próximo", command=lambda:escolher_cidade(box_regiao.get())).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=lambda: inicio()).pack(pady=5)
+    ctk.CTkButton(app, text="Voltar", command=lambda: inicio()).pack(pady=10)
 
 def escolher_cidade(regiao): 
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app, text= f"Escolha a cidade em {regiao}:").pack(pady=5)
+    ctk.CTkLabel(app, text= f"Escolha a cidade em {regiao}:",font=("Segoe Ui", 18, "bold")).pack(pady=10)
     cidades=regioes.get(regiao,[])
     box_cidade=ctk.CTkOptionMenu(app,values=cidades)
-    box_cidade.pack(pady=5)
+    box_cidade.pack(pady=10)
     ctk.CTkButton(app,text="Próximo", command=lambda: escolher_especialidade(regiao,box_cidade.get())).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_regiao()).pack(pady=5)
+    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_regiao()).pack(pady=10)
 
 
 def escolher_especialidade(regiao,cidade):
@@ -376,18 +420,18 @@ def escolher_especialidade(regiao,cidade):
         widget.destroy()
     img5 = Image.open("especialidade.png")
     ctk_img5 = ctk.CTkImage(light_image=img5, size=(21, 21))
-    ctk.CTkLabel(app, text="Escolha a especialidade:", image= ctk_img5, compound='left').pack(pady=5)
+    ctk.CTkLabel(app, text="Escolha a especialidade:",font=("Segoe Ui", 18, "bold"),  image= ctk_img5, compound='left').pack(pady=10)
     if regiao=="Região Metropolitana":
         box_esp = ctk.CTkOptionMenu(app, values=list(profissionais_rmr.keys()))
-        box_esp.pack(pady=5)
+        box_esp.pack(pady=10)
     elif regiao=="Agreste":
         box_esp = ctk.CTkOptionMenu(app, values=list(profissionais_agreste.keys()))
-        box_esp.pack(pady=5)
+        box_esp.pack(pady=10)
     else:
        box_esp = ctk.CTkOptionMenu(app, values=list(profissionais_sertao.keys()))
-       box_esp.pack(pady=5)
+       box_esp.pack(pady=10)
     ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(regiao,cidade, box_esp.get())).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_cidade(regiao)).pack(pady=5)
+    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_cidade(regiao)).pack(pady=10)
    
 
 def escolher_profissional(regiao,cidade,especialidade):
@@ -401,7 +445,7 @@ def escolher_profissional(regiao,cidade,especialidade):
     img8 = Image.open("calendario.png")
     ctk_img8 = ctk.CTkImage(light_image=img8, size=(21, 21))
 
-    ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):", image=ctk_img6, compound='left').pack(pady=5)
+    ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):",font=("Segoe Ui", 18, "bold"),  image=ctk_img6, compound='left').pack(pady=5)
     if regiao=="Região Metropolitana": 
         nomes = profissionais_rmr.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
@@ -414,8 +458,8 @@ def escolher_profissional(regiao,cidade,especialidade):
         nomes = profissionais_sertao.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
         box_prof.pack(pady=5)
-    ctk.CTkLabel(app, text=f"Região: {regiao}").pack(pady=5)
-    ctk.CTkLabel(app, text=f"Cidade: {cidade}").pack(pady=5)
+    ctk.CTkLabel(app, text=f"Região: {regiao}",font=("Segoe Ui", 14)).pack(pady=5)
+    ctk.CTkLabel(app, text=f"Cidade: {cidade}",font=("Segoe Ui", 14)).pack(pady=5)
 
     resultado_label = ctk.CTkLabel(app, text="")
     resultado_label.pack(pady=5)
@@ -426,10 +470,10 @@ def escolher_profissional(regiao,cidade,especialidade):
         data_inicio=date.today()
         data_final=data_inicio+timedelta(days=30)
         calendario = Calendar(janela, date_pattern="dd/mm/yyyy", locale='pt_BR',mindate=data_inicio,maxdate=data_final)
-        calendario.pack(pady=10)
+        calendario.pack(pady=5)
 
         aviso_dias = ctk.CTkLabel(janela, text="", text_color="red")
-        aviso_dias.pack(pady=10)
+        aviso_dias.pack(pady=5)
 
         def escolher():
             img9 = Image.open("alertaerro.png")
@@ -445,12 +489,12 @@ def escolher_profissional(regiao,cidade,especialidade):
 
         ctk.CTkButton(janela, text="Confirmar Data", command=escolher).pack(pady=10)
 
-    ctk.CTkLabel(app, text='Data da consulta:', image=ctk_img8, compound='left').pack(pady=5)
+    ctk.CTkLabel(app, text='Data da consulta:',font=("Segoe Ui", 16), image=ctk_img8, compound='left').pack(pady=10)
     entrada_data = ctk.CTkEntry(app, textvariable=data_var, state="readonly", placeholder_text="Clique no botão para escolher a data")
     entrada_data.pack(pady=5)
     ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=5)
     
-    ctk.CTkLabel(app, text="Horários disponíveis:", image=ctk_img7, compound='left').pack(pady=5)
+    ctk.CTkLabel(app, text="Horários disponíveis:",font=("Segoe Ui", 16), image=ctk_img7, compound='left').pack(pady=5)
     box_horario = ctk.CTkOptionMenu(app, values=["Ver horários"])
     box_horario.pack(pady=5)
 
@@ -486,7 +530,7 @@ def escolher_profissional(regiao,cidade,especialidade):
                 text=f"✅ Consulta marcada com {prof} ({especialidade})\n🗓️ {data} às {horario}",
                 text_color="green"
             )
-            app.after(1000, lambda:confirmar_agendamento(regiao,cidade,especialidade,prof,horario,data_mysql)) #passa a data pro banco ja no formsto certo
+            app.after(1000, lambda:confirmar_agendamento(regiao,cidade,especialidade,prof,horario,data_mysql,convenio)) #passa a data pro banco ja no formsto certo
 
     ctk.CTkButton(app, text="Confirmar Agendamento", command=lambda: confirmar()).pack(pady=10)
 
@@ -497,7 +541,7 @@ def escolher_profissional(regiao,cidade,especialidade):
     resultado_label.pack(pady=5)
 
 
-def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolhida, profissional, horario, data):
+def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolhida, profissional, horario, data,convenio):
     for widget in app.winfo_children():
         widget.destroy()
     img10 = Image.open("histórico.png")
@@ -508,13 +552,13 @@ def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolh
 
     
     ctk.CTkLabel(master=app, text="Agendamento Confirmado!", image=ctk_img11, compound='left' , font=("Arial", 20, "bold")).pack(pady=10)
-    cursor.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id) values (%s,%s,%s,%s,%s,%s,%s)", (regiao_escolhida, cidade_escolhida, especialidade_escolhida, profissional, horario, data, id_usuario_logado))
+    cursor.execute("insert into agendamentos (regioes, cidade, especialidade, profissional, horario, data, usuario_id,convenio) values (%s,%s,%s,%s,%s,%s,%s,%s)", (regiao_escolhida, cidade_escolhida, especialidade_escolhida, profissional, horario, data, id_usuario_logado,convenio))
     conector.commit()
-    corpo1 = ctk.CTkLabel(app, text=f"Consulta marcada em {regiao_escolhida}, na cidade de {cidade_escolhida}, com {profissional}\nEspecialidade: {especialidade_escolhida}\nData: {data}\nHorário: {horario}", text_color="green")
+    corpo1 = ctk.CTkLabel(app, text=f"Consulta marcada em {regiao_escolhida}, na cidade de {cidade_escolhida}, com {profissional}\nEspecialidade: {especialidade_escolhida}\nData: {data}\nHorário: {horario}\nConvênio: {convenio}", text_color="green")
     corpo1.pack(pady=10)
     ctk.CTkButton(app, text="Sair", command=app.quit).pack(pady=10)
     ctk.CTkButton(app, text="Ver meu histórico de agendamentos", image=ctk_img10, compound='left', command=lambda: historico_agendamentos()).pack(pady=10)
-global id_usuario_logado
+#global id_usuario_logado
 def historico_agendamentos():
     for widget in app.winfo_children():
         widget.destroy()
@@ -539,17 +583,21 @@ def historico_agendamentos():
         ctk.CTkLabel(app, text=corpo1_text).pack(pady=10)
     else:
         for agendamento in agendamentos:
-            corpo1_text += f"Especialidade: {agendamento[3]}, Profissional: {agendamento[4]}, Horário: {agendamento[5]}, Data: {agendamento[6]}\n"
+            corpo1_text += f"Especialidade: {agendamento[3]}\n Profissional: {agendamento[4]}\n Horário: {agendamento[5]}\n Data: {agendamento[6]}\n Convenio:{agendamento[8]}"
+            convenio=agendamento[8]
+            if convenio=="Particular":
+                ctk.CTkLabel(app, text="Preço da consulta: R$75,00.").pack(pady=5)
             ctk.CTkLabel(app, text=corpo1_text).pack(pady=5)
 
     ctk.CTkButton(app, text="Voltar", command=inicio).pack(pady=10)
+    ctk.CTkButton(app, text="Enviar E-mail de Confirmação", command=enviar_email).pack(pady=10)
 
 def enviar_email():
     global email_cadastrado, senha_cadastrada
     if not email_cadastrado or not senha_cadastrada:
         ctk.CTkLabel(app, text="⚠️ Preencha os campos de email e senha antes de enviar o email.", text_color="orange").pack(pady=10)
         return
-    ctk.CTkButton(app, text="Enviar E-mail de Confirmação", command=enviar_email).pack(pady=10)
+    #ctk.CTkButton(app, text="Enviar E-mail de Confirmação", command=enviar_email).pack(pady=10)
     host = "smtp.gmail.com" # servidor SMTP do Gmail
     port = 587  # porta para conexão TLS
     login = email_cadastrado 
