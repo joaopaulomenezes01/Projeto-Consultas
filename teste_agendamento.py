@@ -85,63 +85,111 @@ def login():
     
     
     def verificar ():
-        email=campo_usuario.get()
-        senha=campo_senha.get()
+        img19 = Image.open("alertaerro.png")
+        ctk_img19 = ctk.CTkImage(light_image=img19, size=(21, 21))
+
+        email = campo_usuario.get()
+        senha = campo_senha.get()
+        id_usuario_logado = verificar_usuario(email, senha)
         if not email or not senha:
-            resultado.configure(text=f"⚠️ Preencha todos os campos!", text_color="red")
+            resultado.configure(text=f"⚠️ Preencha todos os campos!", text_color="orange")
             return
+           
         try:
+           
            conector = conectar_banco()
            cursor = conector.cursor()
            cursor.execute("SELECT id FROM usuarios WHERE email=%s AND senha=%s", (email, senha))
-           cursor.fetchone()
+           usuario = cursor.fetchone()
            conector.close()
-           id_usuario_logado=verificar_usuario(email, senha) #subi aqui pro try
-           if id_usuario_logado:
+           if usuario:
                resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
-               app.after(1000,lambda:inicio())
+               app.after(1000,lambda: inicio())
+              
            else:
-                resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
-        except:
-            resultado.configure(text="❌ Usuário não encontrado. \n Por favor, realize seu cadastro.", text_color="red")
-            app.after(1000, lambda:cadastrando)
+               resultado.configure(text="❌ Email ou senha incorretos.", text_color="red")
+               return
+        except Exception as e:
+            resultado.configure(app, text=f" Usuário não encontrado,\n Por favor, realize seu cadastro.: {e}",image=ctk_img19, compound = 'left', text_color="red")
 
-    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
         
-       
-    recsenha = ctk.CTkLabel (app, text="Recuperar Senha", text_color='blue', cursor='hand2') 
+    ctk.CTkButton(app, text="Efetuar Login", command=verificar).pack(pady=10)
+
+    recsenha = ctk.CTkLabel (app, text="Recuperar Senha", text_color='blue', cursor='hand2')
     recsenha.pack(pady=10)
     recsenha.bind("<Button-1>", lambda e: recuperar_senha())
 
     cads = ctk.CTkLabel(app, text="Não tem cadastro? Clique aqui", image= ctk_img3, compound="right", text_color="blue", cursor="hand2")
     cads.pack(pady=10)
     cads.bind("<Button-1>", lambda e: cadastrando())
-    
-    def recuperar_senha():
-        for widget in app.winfo_children():
-            widget.destroy()
-        img12 = Image.open("email.png")
-        ctk_img12 = ctk.CTkImage(light_image=img12, size=(21, 21))
-        global email_cadastrado
-        host = "smtp.gmail.com" # servidor SMTP do Gmail
-        port = 587  # porta para conexão TLS
-        login = email_cadastrado 
-        senha = senha_cadastrada
+def recuperar_senha():
+    for widget in app.winfo_children():
+        widget.destroy()
 
-        server = smtplib.SMTP(host, port) 
-        server.starttls()
-        server.ehlo() 
-        server.login(login, senha)
+    ctk.CTkLabel(app, text="🔐 Recuperação de Senha", font=("Arial", 20)).pack(pady=20)
 
-        corpo = f"Olá,\n\nVocê solicitou a recuperação de senha. Sua senha é: {senha_cadastrada}\n\nSe você não solicitou essa recuperação, por favor, ignore este email.\n\nAtenciosamente,\nEquipe de Suporte."
-        email_msg = MIMEMultipart()
-        email_msg['From'] = login
-        email_msg['To'] = email_cadastrado
-        email_msg['Subject'] = 'Confirmação de Agendamento'
-        email_msg.attach(MIMEText(corpo, 'plain'))
-        server.sendmail(login, email_cadastrado, email_msg.as_string())
-        server.quit()
-        resultado.configure(text="✅ Instruções de recuperação enviadas para o seu email.", text_color="green")  
+    entrada_email = ctk.CTkEntry(app, placeholder_text="Digite seu e-mail", width=300)
+    entrada_email.pack(pady=10)
+
+    resultado = ctk.CTkLabel(app, text="")
+    resultado.pack(pady=10)
+
+    def enviar_email():
+        email_destino = entrada_email.get()
+
+        if not email_destino:
+            resultado.configure(text="⚠️ Informe o e-mail cadastrado!", text_color="yellow")
+            return
+
+        # Verifica se o e-mail existe no banco
+        try:
+            conector = conectar_banco()
+            cursor = conector.cursor()
+            cursor.execute("SELECT senha FROM usuarios WHERE email=%s", (email_destino,))
+            resultado_consulta = cursor.fetchone()
+            conector.close()
+
+            if not resultado_consulta:
+                resultado.configure(text="❌ E-mail não cadastrado.", text_color="red")
+                return
+
+            senha_usuario = resultado_consulta[0]
+
+            # Configurações do e-mail do sistema
+            email_sistema = "suporte@gmail.com"
+            senha_sistema = "12345610"  # Use senha de app aqui, não a senha real
+
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(email_sistema, senha_sistema)
+
+            corpo = f"""Olá,
+
+Você solicitou a recuperação da sua senha. Sua senha atual é: {senha_usuario}
+
+Se você não solicitou isso, ignore este e-mail.
+
+Atenciosamente,
+Equipe de Suporte"""
+
+            msg = MIMEMultipart()
+            msg['From'] = email_sistema
+            msg['To'] = email_destino
+            msg['Subject'] = "Recuperação de Senha"
+            msg.attach(MIMEText(corpo, 'plain'))
+
+            server.sendmail(email_sistema, email_destino, msg.as_string())
+            server.quit()
+
+            resultado.configure(text="✅ Instruções enviadas para seu e-mail!", text_color="green")
+            app.after(3000, tela_login)  # Voltar à tela de login após 3 segundos
+
+        except Exception as e:
+            resultado.configure(text=f"❌ Erro ao enviar e-mail: {e}", text_color="red")
+
+    ctk.CTkButton(app, text="Enviar", command=enviar_email).pack(pady=10)
+    ctk.CTkButton(app, text="Voltar", command=tela_login).pack(pady=5)
+
 
 frame_inicial.pack(fill="both", expand=True)
 
@@ -182,7 +230,7 @@ def cadastrar_usuario(nome, cpf, data_nascimento, email, senha):
         messagebox.showerror("Erro", "Usuário já cadastrado.")
         return False
     except Exception as e:
-        messagebox.showerror("Erro", f"Erro ao cadastrar usuário: {e}")
+        messagebox.showerror("Erro", "Erro ao cadastrar usuário:")
         return False
 
 def verificar_usuario(email, senha):
@@ -465,7 +513,7 @@ def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolh
     corpo1.pack(pady=10)
     ctk.CTkButton(app, text="Sair", command=app.quit).pack(pady=10)
     ctk.CTkButton(app, text="Ver meu histórico de agendamentos", image=ctk_img10, compound='left', command=lambda: historico_agendamentos()).pack(pady=10)
-
+global id_usuario_logado
 def historico_agendamentos():
     for widget in app.winfo_children():
         widget.destroy()
@@ -478,7 +526,7 @@ def historico_agendamentos():
     if not nomes:
         nome_usuario_logado='Usuário não encontrado'
     else:
-        nome_usuario_logado=nomes[0]
+        nome_usuario_logado=nomes[0]    
         ctk.CTkLabel(app, text=f"Consultas de {nome_usuario_logado}:").pack(pady=5)
     
     cursor.execute('SELECT * FROM agendamentos WHERE usuario_id=%s', (id_usuario_logado,))
