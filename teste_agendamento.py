@@ -90,6 +90,7 @@ def login():
 
         email = campo_usuario.get()
         senha = campo_senha.get()
+        global id_usuario_logado
         id_usuario_logado = verificar_usuario(email, senha)
         if not email or not senha:
             resultado.configure(text=f"⚠️ Preencha todos os campos!", text_color="orange")
