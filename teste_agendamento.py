@@ -13,6 +13,7 @@ import mysql.connector
 from tkinter import messagebox
 
 configure = config 
+#para o emailprojetos01@gmail.com usar a seguinte senha: vzyw lush aydc jawv 
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -162,8 +163,8 @@ def recuperar_senha():
             senha_usuario = resultado_consulta[0]
 
             # Configurações do e-mail do sistema
-            email_sistema = "suporte@gmail.com"
-            senha_sistema = "12345610"  # Use senha de app aqui, não a senha real
+            email_sistema = "suporte2026@gmail.com"
+            senha_sistema = "bkqz gngb mfhq opjh"  # Use senha de app aqui, não a senha real
 
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.starttls()
@@ -604,11 +605,11 @@ def enviar_email():
     detalhes_agendamento = corpo1_text if "corpo1_text" in globals() and corpo1_text is not None else "Detalhes do agendamento não disponíveis."
     corpo = 'Olá,\n\nSua consulta foi agendada com sucesso!\n\nDetalhes do agendamento:\n' + detalhes_agendamento + '\n\nAgradecemos por escolher nosso serviço.\n\nAtenciosamente,\nEquipe de Agendamento'
     email_msg = MIMEMultipart()
-    email_msg['From'] = login
+    email_msg['From'] = email_sistema
     email_msg['To'] = email_cadastrado
     email_msg['Subject'] = 'Confirmação de Agendamento'
     email_msg.attach(MIMEText(corpo, 'plain'))
-    server.sendmail(login, email_cadastrado, email_msg.as_string())
+    server.sendmail(email_sistema, email_cadastrado, email_msg.as_string())
     server.quit()
 
     ctk.CTkLabel(app, text="✅ E-mail enviado com sucesso!", text_color="green").pack(pady=10)  
