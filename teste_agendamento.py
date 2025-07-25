@@ -163,6 +163,7 @@ def recuperar_senha():
             senha_usuario = resultado_consulta[0]
 
             # Configurações do e-mail do sistema
+            global email_sistema
             email_sistema = "suporte2026@gmail.com"
             senha_sistema = "bkqz gngb mfhq opjh"  # Use senha de app aqui, não a senha real
 
@@ -335,13 +336,20 @@ def cadastrando():
         if not nome.get() or not cpf.get() or not data_nascimento_var.get() or not email_cadastrado or not senha_cadastrada:
             ctk.CTkLabel(app, text="⚠️ Preencha todos os campos!", text_color="yellow").pack(pady=10)
             return
+        
+        cursor.execute("SELECT email FROM usuarios WHERE email=%s", (email_cadastrado,))
+        if cursor.fetchone() is not None:
+            ctk.CTkLabel(app, text="❌ Usuário já cadastrado.", text_color="red").pack(pady=10)
+            app.after(1000, login)
+            return
+
         sucesso= cadastrar_usuario(nome.get(), cpf.get(), data_nascimento_var.get(), email_cadastrado, senha_cadastrada)
         if sucesso:
             ctk.CTkLabel(app,text="✅ Cadastro realizado com sucesso!", text_color="green").pack(pady=10)
             app.after(1000, login)
-        else:
-            ctk.CTkLabel(app, text="❌ Usuário já cadastrado.", text_color="red").pack(pady=10)
-            app.after(1000, login)
+        #else:
+        #    ctk.CTkLabel(app, text="❌ Usuário já cadastrado.", text_color="red").pack(pady=10)
+        #    app.after(1000, login)
 
     ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
     ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
