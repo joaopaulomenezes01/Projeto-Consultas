@@ -399,21 +399,23 @@ def escolher_regiao():
         widget.destroy()
     img4 = Image.open("regiao2.png")
     ctk_img4 = ctk.CTkImage(light_image=img4, size=(21, 21))
-    ctk.CTkLabel(app,text="Escolha a região desejada:",font=("Segoe Ui", 18, "bold"), image=ctk_img4,compound='left').pack(pady=5)
+    ctk.CTkLabel(app,text="Escolha a região desejada:",font=("Segoe Ui", 18, "bold"), image=ctk_img4,compound='left').pack(pady=10)
     box_regiao=ctk.CTkOptionMenu(app,values=list(regioes.keys()))
-    box_regiao.pack(pady=10)
-    ctk.CTkButton(app,text="Próximo", command=lambda:escolher_cidade(box_regiao.get())).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=lambda: inicio()).pack(pady=10)
+    box_regiao.pack(pady=15)
+    ctk.CTkButton(app,text="Próximo", command=lambda:escolher_cidade(box_regiao.get())).pack(pady=15)
+    ctk.CTkButton(app, text="Voltar", command=lambda: inicio()).pack(pady=15)
 
 def escolher_cidade(regiao): 
     for widget in app.winfo_children():
         widget.destroy()
-    ctk.CTkLabel(app, text= f"Escolha a cidade em {regiao}:",font=("Segoe Ui", 18, "bold")).pack(pady=10)
+    img_cidade=Image.open("cidade.png")
+    ctk_img_cidade=ctk.CTkImage(light_image=img_cidade, size=(21,21))
+    ctk.CTkLabel(app, text= f"Escolha a cidade em {regiao}:",font=("Segoe Ui", 18, "bold"),image=ctk_img_cidade,compound='left').pack(pady=10)
     cidades=regioes.get(regiao,[])
     box_cidade=ctk.CTkOptionMenu(app,values=cidades)
-    box_cidade.pack(pady=10)
-    ctk.CTkButton(app,text="Próximo", command=lambda: escolher_especialidade(regiao,box_cidade.get())).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_regiao()).pack(pady=10)
+    box_cidade.pack(pady=15)
+    ctk.CTkButton(app,text="Próximo", command=lambda: escolher_especialidade(regiao,box_cidade.get())).pack(pady=15)
+    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_regiao()).pack(pady=15)
 
 
 def escolher_especialidade(regiao,cidade):
@@ -424,15 +426,15 @@ def escolher_especialidade(regiao,cidade):
     ctk.CTkLabel(app, text="Escolha a especialidade:",font=("Segoe Ui", 18, "bold"),  image= ctk_img5, compound='left').pack(pady=10)
     if regiao=="Região Metropolitana":
         box_esp = ctk.CTkOptionMenu(app, values=list(profissionais_rmr.keys()))
-        box_esp.pack(pady=10)
+        box_esp.pack(pady=15)
     elif regiao=="Agreste":
         box_esp = ctk.CTkOptionMenu(app, values=list(profissionais_agreste.keys()))
-        box_esp.pack(pady=10)
+        box_esp.pack(pady=15)
     else:
        box_esp = ctk.CTkOptionMenu(app, values=list(profissionais_sertao.keys()))
-       box_esp.pack(pady=10)
-    ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(regiao,cidade, box_esp.get())).pack(pady=10)
-    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_cidade(regiao)).pack(pady=10)
+       box_esp.pack(pady=15)
+    ctk.CTkButton(app, text="Próximo", command=lambda: escolher_profissional(regiao,cidade, box_esp.get())).pack(pady=15)
+    ctk.CTkButton(app, text="Voltar", command=lambda: escolher_cidade(regiao)).pack(pady=15)
    
 
 def escolher_profissional(regiao,cidade,especialidade):
@@ -446,21 +448,21 @@ def escolher_profissional(regiao,cidade,especialidade):
     img8 = Image.open("calendario.png")
     ctk_img8 = ctk.CTkImage(light_image=img8, size=(21, 21))
 
-    ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):",font=("Segoe Ui", 18, "bold"),  image=ctk_img6, compound='left').pack(pady=5)
+    ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):",font=("Segoe Ui", 18, "bold"),  image=ctk_img6, compound='left').pack(pady=10)
     if regiao=="Região Metropolitana": 
         nomes = profissionais_rmr.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
-        box_prof.pack(pady=5)
+        box_prof.pack(pady=15)
     elif regiao=="Agreste": 
         nomes = profissionais_agreste.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
-        box_prof.pack(pady=5)
-    else: #condicional por regiao
+        box_prof.pack(pady=15)
+    else: 
         nomes = profissionais_sertao.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
-        box_prof.pack(pady=5)
-    ctk.CTkLabel(app, text=f"Região: {regiao}",font=("Segoe Ui", 14)).pack(pady=5)
-    ctk.CTkLabel(app, text=f"Cidade: {cidade}",font=("Segoe Ui", 14)).pack(pady=5)
+        box_prof.pack(pady=15)
+    ctk.CTkLabel(app, text=f"Região: {regiao}",font=("Segoe Ui", 14)).pack(pady=15)
+    ctk.CTkLabel(app, text=f"Cidade: {cidade}",font=("Segoe Ui", 14)).pack(pady=15)
 
     resultado_label = ctk.CTkLabel(app, text="")
     resultado_label.pack(pady=5)
@@ -501,12 +503,16 @@ def escolher_profissional(regiao,cidade,especialidade):
 
     def escolher_horario(profissional,data):
         data_str = datetime.strptime(data, "%d/%m/%Y")
-        data_mysql=data_str.strftime("%Y-%m-%d") #converte pro fromato esperado pelo mysql
+        data_mysql=data_str.strftime("%Y-%m-%d") 
         horarios_ocupados=[]
-        cursor.execute("SELECT horario FROM agendamentos WHERE profissional=%s AND data=%s", (profissional, data_mysql))
+        cursor.execute("SELECT horario FROM agendamentos WHERE profissional=%s AND data=%s",(profissional, data_mysql))
         resultado=cursor.fetchall()
         for item in resultado:
-            horarios_ocupados.append(item[0]) 
+            horario=(item[0]) #aqui ele retorna do formato do mysql, em formato timedelta
+            horario_segundos=int(horario.total_seconds()) #deixa em formto de segundos 
+            horas=horario_segundos//3600 #converte p horas
+            minutos=(horario_segundos % 3600)//60 #converte p minutos
+            horarios_ocupados.append(f'{horas:02d}:{minutos:02d}') #coloca na lista no formato hh:mm
         
         horarios_disponiveis=[]
         for hora in horarios:
