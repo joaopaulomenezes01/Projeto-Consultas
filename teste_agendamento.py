@@ -164,7 +164,7 @@ def recuperar_senha():
 
             # Configurações do e-mail do sistema
         
-            email_sistema = "suporte2026@gmail.com"
+            email_sistema = "suporteapp2026@gmail.com"
             senha_sistema = "lbmb fpcn ctmi jhwh"  # Usei senha de app aqui, não a senha real
 
             server = smtplib.SMTP("smtp.gmail.com", 587)
