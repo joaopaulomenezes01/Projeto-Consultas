@@ -111,6 +111,9 @@ def login():
            conector.close()
            if usuario:
                resultado.configure(text="✅ Login bem-sucedido!", text_color="green")
+               global email_cadastrado, senha_cadastrada
+               email_cadastrado = email
+               senha_cadastrada = senha
                app.after(1000,lambda: inicio())
               
            else:
@@ -163,8 +166,9 @@ def recuperar_senha():
             senha_usuario = resultado_consulta[0]
 
             # Configurações do e-mail do sistema
-        
-            email_sistema = "suporte2026@gmail.com"
+            global email_sistema
+            global senha_sistema
+            email_sistema = "suporteapp2026@gmail.com"
             senha_sistema = "lbmb fpcn ctmi jhwh"  # Usei senha de app aqui, não a senha real
 
             server = smtplib.SMTP("smtp.gmail.com", 587)
@@ -328,27 +332,24 @@ def cadastrando():
     senha_entry.pack(pady=2)
 
     def salvar_cadastro():
-        global email_cadastrado, senha_cadastrada
-        email_cadastrado = email_entry.get()
-        senha_cadastrada = senha_entry.get()
 
-        if not nome.get() or not cpf.get() or not data_nascimento_var.get() or not email_cadastrado or not senha_cadastrada:
+        if not nome.get() or not cpf.get() or not data_nascimento_var.get() or not email_entry.get() or not senha_entry.get():
             ctk.CTkLabel(app, text="⚠️ Preencha todos os campos!", text_color="yellow").pack(pady=10)
             return
         
-        cursor.execute("SELECT email FROM usuarios WHERE email=%s", (email_cadastrado,))
+        cursor.execute("SELECT email FROM usuarios WHERE email=%s", (email_entry.get(),))
         if cursor.fetchone() is not None:
             ctk.CTkLabel(app, text="❌ Usuário já cadastrado.", text_color="red").pack(pady=10)
             app.after(1000, login)
             return
-
-        sucesso= cadastrar_usuario(nome.get(), cpf.get(), data_nascimento_var.get(), email_cadastrado, senha_cadastrada)
-        if sucesso:
+        
+        try:
+            cadastrar_usuario(nome.get(), cpf.get(), data_nascimento_var.get(), email_entry.get(), senha_entry.get())
             ctk.CTkLabel(app,text="✅ Cadastro realizado com sucesso!", text_color="green").pack(pady=10)
             app.after(1000, login)
-        #else:
-        #    ctk.CTkLabel(app, text="❌ Usuário já cadastrado.", text_color="red").pack(pady=10)
-        #    app.after(1000, login)
+        except Exception:
+            ctk.CTkLabel(app, text="❌ Erro ao cadastrar. Verifique se já possui cadastro.", text_color="red").pack(pady=10)
+            app.after(1000, login)
 
     ctk.CTkButton(app, text='Salvar Cadastro', command=salvar_cadastro).pack(pady=10)
     ctk.CTkButton(app, text='Voltar ao Login', command=login).pack(pady=10)
@@ -451,17 +452,17 @@ def escolher_profissional(regiao,cidade,especialidade):
     if regiao=="Região Metropolitana": 
         nomes = profissionais_rmr.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
-        box_prof.pack(pady=15)
+        box_prof.pack(pady=10)
     elif regiao=="Agreste": 
         nomes = profissionais_agreste.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
-        box_prof.pack(pady=15)
+        box_prof.pack(pady=10)
     else: 
         nomes = profissionais_sertao.get(especialidade, [])
         box_prof = ctk.CTkOptionMenu(app, values=nomes)
-        box_prof.pack(pady=15)
-    ctk.CTkLabel(app, text=f"Região: {regiao}",font=("Segoe Ui", 14)).pack(pady=15)
-    ctk.CTkLabel(app, text=f"Cidade: {cidade}",font=("Segoe Ui", 14)).pack(pady=15)
+        box_prof.pack(pady=10)
+    ctk.CTkLabel(app, text=f"Região: {regiao}",font=("Segoe Ui", 14)).pack(pady=5)
+    ctk.CTkLabel(app, text=f"Cidade: {cidade}",font=("Segoe Ui", 14)).pack(pady=5)
 
     resultado_label = ctk.CTkLabel(app, text="")
     resultado_label.pack(pady=5)
@@ -491,7 +492,7 @@ def escolher_profissional(regiao,cidade,especialidade):
 
         ctk.CTkButton(janela, text="Confirmar Data", command=escolher).pack(pady=10)
 
-    ctk.CTkLabel(app, text='Data da consulta:',font=("Segoe Ui", 16), image=ctk_img8, compound='left').pack(pady=10)
+    ctk.CTkLabel(app, text='Data da consulta:',font=("Segoe Ui", 16), image=ctk_img8, compound='left').pack(pady=5)
     entrada_data = ctk.CTkEntry(app, textvariable=data_var, state="readonly", placeholder_text="Clique no botão para escolher a data")
     entrada_data.pack(pady=5)
     ctk.CTkButton(app, text="Selecionar Data", command=abrir_calendario).pack(pady=5)
@@ -564,7 +565,8 @@ def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolh
     corpo1.pack(pady=10)
     ctk.CTkButton(app, text="Sair", command=app.quit).pack(pady=10)
     ctk.CTkButton(app, text="Ver meu histórico de agendamentos", image=ctk_img10, compound='left', command=lambda: historico_agendamentos()).pack(pady=10)
-#global id_usuario_logado
+
+
 def historico_agendamentos():
     for widget in app.winfo_children():
         widget.destroy()
@@ -589,41 +591,37 @@ def historico_agendamentos():
         ctk.CTkLabel(app, text=corpo1_text).pack(pady=10)
     else:
         for agendamento in agendamentos:
-            corpo1_text += f"Especialidade: {agendamento[3]}\n Profissional: {agendamento[4]}\n Horário: {agendamento[5]}\n Data: {agendamento[6]}\n Convenio:{agendamento[8]}"
+            corpo1_text += f"Especialidade: {agendamento[3]}\n Profissional: {agendamento[4]}\n Horário: {agendamento[5]}\n Data: {agendamento[6]}\n Convenio:{agendamento[8]}\n"
             convenio=agendamento[8]
             if convenio=="Particular":
-                ctk.CTkLabel(app, text="Preço da consulta: R$75,00.").pack(pady=5)
-            ctk.CTkLabel(app, text=corpo1_text).pack(pady=5)
+                corpo1_text += "Preço da consulta: R$75,00. \n"
+        ctk.CTkLabel(app, text=corpo1_text).pack(pady=5)
 
     ctk.CTkButton(app, text="Voltar", command=inicio).pack(pady=10)
     ctk.CTkButton(app, text="Enviar E-mail de Confirmação", command=enviar_email).pack(pady=10)
 
 def enviar_email():
-    global email_cadastrado, senha_cadastrada, email_sistema
     if not email_cadastrado or not senha_cadastrada:
         ctk.CTkLabel(app, text="⚠️ Preencha os campos de email e senha antes de enviar o email.", text_color="orange").pack(pady=10)
         return
-    #ctk.CTkButton(app, text="Enviar E-mail de Confirmação", command=enviar_email).pack(pady=10)
+    
     host = "smtp.gmail.com" # servidor SMTP do Gmail
     port = 587  # porta para conexão TLS
-    login = email_cadastrado 
-    senha = senha_cadastrada
-
+    email_sistema = "suporteapp2026@gmail.com"
+    senha_sistema = "lbmb fpcn ctmi jhwh"  # Usei senha de app aqui, não a senha real
     server = smtplib.SMTP(host, port) 
     server.ehlo()
-    server.starttls()
-    server.ehlo() 
-    server.login(login, senha)
-
+    server.starttls() 
+    server.login(email_sistema, senha_sistema)
 
     detalhes_agendamento = corpo1_text if "corpo1_text" in globals() and corpo1_text is not None else "Detalhes do agendamento não disponíveis."
     corpo = 'Olá,\n\nSua consulta foi agendada com sucesso!\n\nDetalhes do agendamento:\n' + detalhes_agendamento + '\n\nAgradecemos por escolher nosso serviço.\n\nAtenciosamente,\nEquipe de Agendamento'
     email_msg = MIMEMultipart()
     email_msg['From'] = email_sistema
-    email_msg['To'] = login
+    email_msg['To'] = email_cadastrado
     email_msg['Subject'] = 'Confirmação de Agendamento'
     email_msg.attach(MIMEText(corpo, 'plain'))
-    server.sendmail(email_sistema, login, email_msg.as_string())
+    server.sendmail(email_sistema, email_cadastrado, email_msg.as_string())
     server.quit()
 
     ctk.CTkLabel(app, text="✅ E-mail enviado com sucesso!", text_color="green").pack(pady=10)  
