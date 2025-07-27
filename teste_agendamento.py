@@ -163,9 +163,9 @@ def recuperar_senha():
             senha_usuario = resultado_consulta[0]
 
             # Configurações do e-mail do sistema
-            global email_sistema
+        
             email_sistema = "suporte2026@gmail.com"
-            senha_sistema = "bkqz gngb mfhq opjh"  # Use senha de app aqui, não a senha real
+            senha_sistema = "lbmb fpcn ctmi jhwh"  # Usei senha de app aqui, não a senha real
 
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.starttls()
@@ -173,27 +173,26 @@ def recuperar_senha():
 
             corpo = f"""Olá,
 
-Você solicitou a recuperação da sua senha. Sua senha atual é: {senha_usuario}
+Você solicitou a recuperação da sua senha. Sua senha cadastrada é: {senha_usuario}
 
 Se você não solicitou isso, ignore este e-mail.
 
 Atenciosamente,
 Equipe de Suporte"""
 
-            msg = MIMEMultipart()
-            msg['From'] = email_sistema
-            msg['To'] = email_destino
-            msg['Subject'] = "Recuperação de Senha"
-            msg.attach(MIMEText(corpo, 'plain'))
-
-            server.sendmail(email_sistema, email_destino, msg.as_string())
+            assunto = "Recuperação de Senha - Sistema de Agendamentos"
+        
+            mensagem = f"Subject: {assunto}\n\n{corpo}"
+            server.sendmail(email_sistema, email_destino, mensagem.encode("utf-8"))
             server.quit()
 
+          
             resultado.configure(text="✅ Instruções enviadas para seu e-mail!", text_color="green")
             app.after(3000,login)  # Voltar à tela de login após 3 segundos
 
-        except Exception as e:
-            resultado.configure(text=f"❌ Erro ao enviar e-mail: {e}", text_color="red")
+
+        except Exception as erro:
+            resultado.configure(text=f" ❌ Erro ao enviar e-mail:\n{erro}", text_color="red")
 
     ctk.CTkButton(app, text="Enviar", command=enviar_email).pack(pady=10)
     ctk.CTkButton(app, text="Voltar", command=login).pack(pady=5)
@@ -600,7 +599,7 @@ def historico_agendamentos():
     ctk.CTkButton(app, text="Enviar E-mail de Confirmação", command=enviar_email).pack(pady=10)
 
 def enviar_email():
-    global email_cadastrado, senha_cadastrada
+    global email_cadastrado, senha_cadastrada, email_sistema
     if not email_cadastrado or not senha_cadastrada:
         ctk.CTkLabel(app, text="⚠️ Preencha os campos de email e senha antes de enviar o email.", text_color="orange").pack(pady=10)
         return
@@ -611,6 +610,7 @@ def enviar_email():
     senha = senha_cadastrada
 
     server = smtplib.SMTP(host, port) 
+    server.ehlo()
     server.starttls()
     server.ehlo() 
     server.login(login, senha)
@@ -620,10 +620,10 @@ def enviar_email():
     corpo = 'Olá,\n\nSua consulta foi agendada com sucesso!\n\nDetalhes do agendamento:\n' + detalhes_agendamento + '\n\nAgradecemos por escolher nosso serviço.\n\nAtenciosamente,\nEquipe de Agendamento'
     email_msg = MIMEMultipart()
     email_msg['From'] = email_sistema
-    email_msg['To'] = email_cadastrado
+    email_msg['To'] = login
     email_msg['Subject'] = 'Confirmação de Agendamento'
     email_msg.attach(MIMEText(corpo, 'plain'))
-    server.sendmail(email_sistema, email_cadastrado, email_msg.as_string())
+    server.sendmail(email_sistema, login, email_msg.as_string())
     server.quit()
 
     ctk.CTkLabel(app, text="✅ E-mail enviado com sucesso!", text_color="green").pack(pady=10)  
