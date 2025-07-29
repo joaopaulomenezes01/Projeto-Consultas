@@ -1,5 +1,5 @@
 
-from logging import config
+
 import customtkinter as ctk
 import tkinter as tk
 from tkcalendar import Calendar
@@ -11,7 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import mysql.connector
 
-configure = config 
+ 
 #para o emailprojetos01@gmail.com usar a seguinte senha: vzyw lush aydc jawv 
 
 #Configurações visuais 
