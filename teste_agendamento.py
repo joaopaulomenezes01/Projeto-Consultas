@@ -5,17 +5,16 @@ import tkinter as tk
 from tkcalendar import Calendar
 from datetime import datetime, date, timedelta
 
-from PIL import Image, ImageTk
+from PIL import Image
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import mysql.connector
-from tkinter import messagebox
 
 configure = config 
 #para o emailprojetos01@gmail.com usar a seguinte senha: vzyw lush aydc jawv 
 
-#Configuraçõe visuais 
+#Configurações visuais 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
 app = ctk.CTk()
