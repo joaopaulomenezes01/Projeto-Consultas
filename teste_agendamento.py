@@ -74,11 +74,11 @@ def login():
         widget.destroy()
 
     ctk.CTkLabel(app, text="Bem-vindo ao Login!", font=("Segoe Ui", 24, "bold")).pack(pady=10)
-    img1 = Image.open("usuario.png")
+    img1 = Image.open("imagens/usuario.png")
     ctk_img1 = ctk.CTkImage(light_image=img1, size=(21, 21))
-    img2 = Image.open("senha.png")
+    img2 = Image.open("imagens/senha.png")
     ctk_img2 = ctk.CTkImage(light_image=img2, size=(21, 21))
-    img3 = Image.open("cliqueaqui.png")
+    img3 = Image.open("imagens/cliqueaqui.png")
     ctk_img3 = ctk.CTkImage(light_image=img3, size=(21, 21))
     ctk.CTkLabel(master=app, text="Usuário:",font=("Segoe Ui", 14), image= ctk_img1, compound='left').pack(pady=10)
 
@@ -92,7 +92,7 @@ def login():
     
     
     def verificar ():
-        img19 = Image.open("alertaerro.png")
+        img19 = Image.open("imagens/alertaerro.png")
         ctk_img19 = ctk.CTkImage(light_image=img19, size=(21, 21))
 
         email = campo_usuario.get()
@@ -209,7 +209,7 @@ frame_inicial.pack(fill="both", expand=True)
 frame_esquerda = ctk.CTkFrame(frame_inicial, width=400, fg_color="#A2EBFF")
 frame_esquerda.pack(side="left", fill="both", expand=True)
 
-imagem = Image.open("img_esteto.png")
+imagem = Image.open("imagens/img_esteto.png")
 ctk_img = ctk.CTkImage(light_image=imagem, size=(300, 300))
 label_img = ctk.CTkLabel(frame_esquerda, image=ctk_img, text="")
 ctk.CTkLabel(frame_esquerda, text="  Olá! Bem vindo(a) ao \n Sistema de Agendamentos!  ",
@@ -311,11 +311,11 @@ def abrir_calendario():
 def cadastrando():
     for widget in app.winfo_children(): 
         widget.destroy()
-    img14 = Image.open("email.png")
+    img14 = Image.open("imagens/email.png")
     ctk_img14 = ctk.CTkImage(light_image=img14, size=(21, 21))
-    img15 = Image.open("senha.png")
+    img15 = Image.open("imagens/senha.png")
     ctk_img15 = ctk.CTkImage(light_image=img15, size=(21, 21))
-    img16 = Image.open("usuario.png")
+    img16 = Image.open("imagens/usuario.png")
     ctk_img16 = ctk.CTkImage(light_image=img16, size=(21, 21))
     ctk.CTkLabel(app, text='Nome Completo:').pack(pady=2)
     nome  = ctk.CTkEntry(app, placeholder_text='Digite seu Nome Completo')
@@ -362,7 +362,7 @@ def inicio():
     for widget in app.winfo_children():
         widget.destroy()
 
-    img17=Image.open("escolha2.png")
+    img17=Image.open("imagens/escolha2.png")
     ctk_img17 = ctk.CTkImage(light_image=img17, size=(30, 30))
     ctk.CTkLabel(app,text="O que deseja fazer?",font=("Segoe Ui", 20, "bold"),image=ctk_img17,compound='left').pack(pady=(10,10))
     ctk.CTkButton(app, text="Ver meu histórico de agendamentos",font=("Segoe Ui", 14), command=lambda: historico_agendamentos()).pack(pady=20)
@@ -374,7 +374,7 @@ def inicio():
 def mostrar_convenios():
     for widget in app.winfo_children():
         widget.destroy()
-    imgconv=Image.open("convenios.png")
+    imgconv=Image.open("imagens/convenios.png")
     ctk_imgconv=ctk.CTkImage(light_image=imgconv, size=(21, 21))
     ctk.CTkLabel(app,text="Lista de Convênios aceitos pela nossa rede:",font=("Segoe Ui", 20, "bold"), image=ctk_imgconv,compound='left').pack(pady=(10,10))
     for convenio in convenios:
@@ -385,7 +385,7 @@ def mostrar_convenios():
 def escolher_convenio(): 
     for widget in app.winfo_children():
         widget.destroy()
-    imgconv=Image.open("convenios.png")
+    imgconv=Image.open("imagens/convenios.png")
     ctk_imgconv=ctk.CTkImage(light_image=imgconv, size=(21, 21))
     ctk.CTkLabel(app,text="Escolha seu Convênio",font=("Segoe Ui", 18, "bold"), image=ctk_imgconv,compound='left').pack(pady=15)
     ctk.CTkLabel(app,text="❌ Não possui?",font=("Segoe Ui", 16)).pack(pady=10)
@@ -405,7 +405,7 @@ def salvar_convenio(convenio_escolhido):
 def escolher_regiao(): 
     for widget in app.winfo_children():
         widget.destroy()
-    img4 = Image.open("regiao2.png")
+    img4 = Image.open("imagens/regiao2.png")
     ctk_img4 = ctk.CTkImage(light_image=img4, size=(21, 21))
     ctk.CTkLabel(app,text="Escolha a região desejada:",font=("Segoe Ui", 18, "bold"), image=ctk_img4,compound='left').pack(pady=10)
     box_regiao=ctk.CTkOptionMenu(app,values=list(regioes.keys()))
@@ -417,7 +417,7 @@ def escolher_regiao():
 def escolher_cidade(regiao): 
     for widget in app.winfo_children():
         widget.destroy()
-    img_cidade=Image.open("cidade.png")
+    img_cidade=Image.open("imagens/cidade.png")
     ctk_img_cidade=ctk.CTkImage(light_image=img_cidade, size=(21,21))
     ctk.CTkLabel(app, text= f"Escolha a cidade em {regiao}:",font=("Segoe Ui", 18, "bold"),image=ctk_img_cidade,compound='left').pack(pady=10)
     cidades=regioes.get(regiao,[])
@@ -430,7 +430,7 @@ def escolher_cidade(regiao):
 def escolher_especialidade(regiao,cidade):
     for widget in app.winfo_children():
         widget.destroy()
-    img5 = Image.open("especialidade.png")
+    img5 = Image.open("imagens/especialidade.png")
     ctk_img5 = ctk.CTkImage(light_image=img5, size=(21, 21))
     ctk.CTkLabel(app, text="Escolha a especialidade:",font=("Segoe Ui", 18, "bold"),  image= ctk_img5, compound='left').pack(pady=10)
     if regiao=="Região Metropolitana":
@@ -450,11 +450,11 @@ def escolher_profissional(regiao,cidade,especialidade):
     for widget in app.winfo_children():
         widget.destroy()
     data_var = tk.StringVar(app)
-    img6 = Image.open("profissional.png")
+    img6 = Image.open("imagens/profissional.png")
     ctk_img6 = ctk.CTkImage(light_image=img6, size=(21, 21))
-    img7 = Image.open("horarios.png")
+    img7 = Image.open("imagens/horarios.png")
     ctk_img7 = ctk.CTkImage(light_image=img7, size=(21, 21))
-    img8 = Image.open("calendario.png")
+    img8 = Image.open("imagens/calendario.png")
     ctk_img8 = ctk.CTkImage(light_image=img8, size=(21, 21))
 
     ctk.CTkLabel(app, text=f"Profissionais disponíveis ({especialidade}):",font=("Segoe Ui", 18, "bold"),  image=ctk_img6, compound='left').pack(pady=10)
@@ -489,7 +489,7 @@ def escolher_profissional(regiao,cidade,especialidade):
         aviso_dias.pack(pady=5)
 
         def escolher():
-            img9 = Image.open("alertaerro.png")
+            img9 = Image.open("imagens/alertaerro.png")
             ctk_img9 = ctk.CTkImage(light_image=img9, size=(21, 21))
             data_escolhida=calendario.get_date()
             data_str=datetime.strptime(data_escolhida,"%d/%m/%Y")
@@ -559,9 +559,9 @@ def escolher_profissional(regiao,cidade,especialidade):
 def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolhida, profissional, horario, data,convenio):
     for widget in app.winfo_children():
         widget.destroy()
-    img10 = Image.open("histórico.png")
+    img10 = Image.open("imagens/histórico.png")
     ctk_img10 = ctk.CTkImage(light_image=img10, size=(100, 100))
-    img11 = Image.open("confirma2.png")
+    img11 = Image.open("imagens/confirma2.png")
     ctk_img11 = ctk.CTkImage(light_image=img11, size=(100, 100))
     
     ctk.CTkLabel(master=app, text="Agendamento Confirmado!", image=ctk_img11, compound='left' , font=("Arial", 20, "bold")).pack(pady=10)
@@ -576,7 +576,7 @@ def confirmar_agendamento(regiao_escolhida,cidade_escolhida,especialidade_escolh
 def historico_agendamentos():
     for widget in app.winfo_children():
         widget.destroy()
-    img13 = Image.open("lupa.png")
+    img13 = Image.open("imagens/lupa.png")
     ctk_img13 = ctk.CTkImage(light_image=img13, size=(21, 21))
     ctk.CTkLabel(app, text="Histórico de Agendamentos", image=ctk_img13, compound='right').pack(pady=10)
 
